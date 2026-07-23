@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LA CARRERA DEL RELOJ - RUTINAS DIARIAS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+      text-transform: uppercase;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffeaa7 0%, #74b9ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+
+    h1 {
+      color: #2d3436;
+      text-shadow: 2px 2px 4px #ffffff;
+      margin-bottom: 15px;
+      font-size: 26px;
+      text-align: center;
+    }
+
+    /* Contenedor principal */
+    .container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 800px;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border: 5px solid #fdcb6e;
+    }
+
+    /* CIRCUITO DE CARRERAS (SECCIÓN SUPERIOR) */
+    .track-container {
+      background-color: #636e72;
+      border-radius: 15px;
+      height: 70px;
+      position: relative;
+      margin-bottom: 20px;
+      border: 4px solid #2d3436;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Línea discontinua de la carretera */
+    .track-line {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      border-top: 4px dashed #ffffff;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Coche de carreras (AQUÍ ESTÁ EL CAMBIO DE DIRECCIÓN) */
+    .car {
+      position: absolute;
+      font-size: 40px;
+      left: 2%;
+      transition: left 0.6s ease-in-out;
+      z-index: 2;
+      transform: scaleX(-1); /* Girar el coche horizontalmente hacia la derecha */
+    }
+
+    /* Meta */
+    .finish-line {
+      position: absolute;
+      right: 15px;
+      font-size: 35px;
+      z-index: 1;
+    }
+
+    /* HEADER DE INFORMACIÓN */
+    .header-game {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #2d3436;
+    }
+
+    .time-badge {
+      background-color: #0984e3;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    /* ZONA DE PREGUNTA */
+    .question-box {
+      background-color: #ffeaa7;
+      color: #2d3436;
+      padding: 20px;
+      border-radius: 20px;
+      font-size: 22px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border: 4px solid #fdcb6e;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .feedback {
+      font-size: 20px;
+      font-weight: bold;
+      height: 30px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .correct-text { color: #00b894; }
+    .wrong-text { color: #d63031; }
+
+    /* GRID DE OPCIONES */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-option {
+      background-color: #74b9ff;
+      color: white;
+      border: 3px solid #0984e3;
+      padding: 16px;
+      border-radius: 15px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #0984e3;
+      transition: all 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 65px;
+    }
+
+    .btn-option:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0984e3;
+    }
+
+    .btn-option.correct {
+      background-color: #00b894 !important;
+      border-color: #008f72 !important;
+      box-shadow: 0 5px 0 #008f72 !important;
+    }
+
+    .btn-option.wrong {
+      background-color: #ff7675 !important;
+      border-color: #d63031 !important;
+      box-shadow: 0 5px 0 #d63031 !important;
+    }
+
+    .btn-restart {
+      background-color: #00b894;
+      color: white;
+      border: none;
+      padding: 16px 30px;
+      font-size: 22px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #008f72;
+      display: none;
+      margin: 20px auto 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏎️ LA CARRERA DEL RELOJ ⏰</h1>
+
+  <div class="container">
+    <!-- CIRCUITO DE CARRERAS -->
+    <div class="track-container">
+      <div class="track-line"></div>
+      <div class="car" id="car">🚗</div>
+      <div class="finish-line">🏁</div>
+    </div>
+
+    <!-- CABECERA DE JUEGO -->
+    <div class="header-game">
+      <span class="time-badge" id="time-badge">MOMENTO DEL DÍA</span>
+      <span id="score-tag" style="font-weight: bold;">AVANCE: 0 / 10</span>
+    </div>
+
+    <!-- CAJA DE PREGUNTA -->
+    <div class="question-box" id="question">
+      CARGANDO CARRERA...
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <!-- OPCIONES -->
+    <div class="options-grid" id="options"></div>
+
+    <button class="btn-restart" id="btn-restart" onclick="startGame()">¡JUGAR OTRA CARRERA! 🔄</button>
+  </div>
+
+  <script>
+    // BATERÍA COMPLETA DE RUTINAS DIARIAS (15 PREGUNTAS)
+    const questionBank = [
+      // MAÑANA
+      { moment: "MAÑANA 🌅", q: "¿QUÉ HACEMOS AL DESPERTAR POR LA MAÑANA?", opts: ["LAVARSE LA CARA Y DIENTES 🪥", "PONERSE EL PIJAMA 🌙", "CENAR EN FAMILIA 🍽️"], ans: 0 },
+      { moment: "MAÑANA 🌅", q: "¿QUÉ TOMAMOS PARA TENER ENERGÍA POR LA MAÑANA?", opts: ["UN BUEN DESAYUNO 🥣", "UNA PIZZA DE NOCHE 🍕", "UN HELADO ANTES DE DORMIR 🍦"], ans: 0 },
+      { moment: "MAÑANA 🌅", q: "¿A DÓNDE VAMOS POR LA MAÑANA DESPUÉS DE DESAYUNAR?", opts: ["AL COLEGIO 🏫", "A LA CAMA A DORMIR 🛌", "A VER LAS ESTRELLAS 🌟"], ans: 0 },
+      { moment: "MAÑANA 🌅", q: "¿QUÉ NOS PONEMOS POR LA MAÑANA PARA SALIR A LA CALLE?", opts: ["LA ROPA DEL DÍA 👕", "EL PIJAMA 🛌", "EL ALBORNOZ DE BAÑO 🛁"], ans: 0 },
+
+      // MEDIODÍA
+      { moment: "MEDIODÍA ☀️", q: "¿QUÉ HACEMOS A MITAD DEL DÍA CUANDO TENEMOS HAMBRE?", opts: ["COMER EN LA MESA 🍲", "DESAYUNAR CEREALES 🥣", "DORMIR TODA LA NOCHE 🌙"], ans: 0 },
+      { moment: "MEDIODÍA ☀️", q: "¿QUÉ HACE EL SOL A MEDIODÍA?", opts: ["BRILLA MUCHO EN EL CIELO ☀️", "SE OCULTA Y SALE LA LUNA 🌙", "HACE QUE SEA DE NOCHE 🖤"], ans: 0 },
+
+      // TARDE
+      { moment: "TARDE 🌆", q: "¿QUÉ HACEMOS EN EL PARQUE POR LA TARDE?", opts: ["JUGAR Y CORRER 🛝", "DORMIR EN LA CAMA 💤", "DESAYUNAR LECHE 🥛"], ans: 0 },
+      { moment: "TARDE 🌆", q: "¿QUÉ TOMAMOS A MEDIA TARDE PARA MERENDAR?", opts: ["UNA FRUTA O BOCADILLO 🍎", "LA CENA DE NOCHE 🥗", "NADA, NOS VAMOS A DORMIR 😴"], ans: 0 },
+      { moment: "TARDE 🌆", q: "¿QUÉ HACEMOS CON LOS JUGUETES AL TERMINAR DE JUGAR?", opts: ["RECOGERLOS TODOS 🧸", "DEJARLOS EN EL SUELO ❌", "TIRARLOS POR LA VENTANA 🪟"], ans: 0 },
+      { moment: "TARDE 🌆", q: "¿QUÉ HACEMOS DESPUÉS DE JUGAR EN EL PARQUE?", opts: ["LAVARNOS LAS MANOS 🧼", "IR A DORMIR DIRECTOS 🛌", "MANCHARNOS MÁS 泥"], ans: 0 },
+
+      // NOCHE
+      { moment: "NOCHE 🌙", q: "¿QUÉ NOS PONEMOS ANTES DE IR A LA CAMA?", opts: ["EL PIJAMA 🛋️", "LA ROPA DE IR AL COLEGIO 🎒", "LOS ZAPATOS DE LA CALLE 👟"], ans: 0 },
+      { moment: "NOCHE 🌙", q: "¿QUÉ SALE EN EL CIELO CUANDO ES DE NOCHE?", opts: ["LA LUNA Y LAS ESTRELLAS 🌙⭐", "EL SOL BRILLANTE ☀️", "UN ARCOÍRIS 🌈"], ans: 0 },
+      { moment: "NOCHE 🌙", q: "¿QUÉ HACEMOS JUSTO ANTES DE DORMIR?", opts: ["LEER UN CUENTO 📖", "IR AL PARQUE A JUGAR 🛝", "CORRER UNA CARRERA 🏃‍♀️"], ans: 0 },
+      { moment: "NOCHE 🌙", q: "¿QUÉ HACEMOS EN EL BAÑO ANTES DE PONERNOS EL PIJAMA?", opts: ["DARNOS UN BUEN BAÑO 🛁", "IR AL COLEGIO 🏫", "JUGAR CON LA PELOTA ⚽"], ans: 0 },
+      { moment: "NOCHE 🌙", q: "¿QUÉ HACEMOS CUANDO SE APAGAN LAS LUCES POR LA NOCHE?", opts: ["DORMIR Y SOÑAR 💤", "JUGAR A LA PELOTA ⚽", "DESAYUNAR CEREALES 🥣"], ans: 0 }
+    ];
+
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledOptions = [];
+    let correctShuffledIndex = -1;
+
+    function startGame() {
+      document.getElementById('car').style.left = '2%';
+
+      selectedQuestions = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, 10);
+      
+      currentQuestionIndex = 0;
+      score = 0;
+
+      document.getElementById('btn-restart').style.display = 'none';
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('question').style.display = 'flex';
+      updateScoreUI();
+      loadQuestion();
+    }
+
+    function shuffleOptions(opts, correctIndex) {
+      const correctText = opts[correctIndex];
+      shuffledOptions = [...opts].sort(() => 0.5 - Math.random());
+      correctShuffledIndex = shuffledOptions.indexOf(correctText);
+    }
+
+    function loadQuestion() {
+      document.getElementById('feedback').innerText = '';
+      const qData = selectedQuestions[currentQuestionIndex];
+      
+      shuffleOptions(qData.opts, qData.ans);
+      
+      document.getElementById('time-badge').innerText = qData.moment;
+      document.getElementById('question').innerText = qData.q;
+
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+
+      shuffledOptions.forEach((optionText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = optionText;
+        btn.onclick = (e) => checkAnswer(index, e.target);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIndex, clickedBtn) {
+      const feedbackEl = document.getElementById('feedback');
+      
+      if (selectedIndex === correctShuffledIndex) {
+        score++;
+        
+        clickedBtn.classList.add('correct');
+        feedbackEl.className = "feedback correct-text";
+        feedbackEl.innerText = "¡SÚPER BIEN! 🏎️ ¡EL COCHE AVANZA!";
+        
+        const newPos = 2 + (score * 8.5);
+        document.getElementById('car').style.left = `${newPos}%`;
+        
+        updateScoreUI();
+        disableButtons();
+
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < 10) {
+            loadQuestion();
+          } else {
+            endGame();
+          }
+        }, 1500);
+
+      } else {
+        clickedBtn.classList.add('wrong');
+        feedbackEl.className = "feedback wrong-text";
+        feedbackEl.innerText = "¡INTÉNTALO DE NUEVO! 💪";
+        
+        setTimeout(() => {
+          clickedBtn.classList.remove('wrong');
+          feedbackEl.innerText = '';
+        }, 1000);
+      }
+    }
+
+    function disableButtons() {
+      const btns = document.querySelectorAll('.btn-option');
+      btns.forEach(btn => btn.disabled = true);
+    }
+
+    function updateScoreUI() {
+      document.getElementById('score-tag').innerText = `AVANCE: ${score} / 10`;
+    }
+
+    function endGame() {
+      document.getElementById('car').style.left = '88%';
+      document.getElementById('question').style.display = "none";
+      document.getElementById('options').innerHTML = "🎉 ¡ENHORABUENA! ¡HAS LLEGADO A LA META Y COMPLETADO EL DÍA! 🏆🏁";
+      document.getElementById('options').style.fontSize = "24px";
+      document.getElementById('options').style.textAlign = "center";
+      document.getElementById('options').style.color = "#2d3436";
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('btn-restart').style.display = 'block';
+    }
+
+    document.addEventListener("DOMContentLoaded", startGame);
+  </script>
+</body>
+</html>
