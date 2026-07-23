@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUPERMERCADITO DESAFÍO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+      text-transform: uppercase;
+    }
+
+    body {
+      background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+
+    h1 {
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 15px;
+      font-size: 26px;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 800px;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border: 5px solid #00b894;
+    }
+
+    /* PANTALLA DE SELECCIÓN DE IDIOMA */
+    .lang-selection {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 30px 10px;
+    }
+
+    .lang-title {
+      font-size: 22px;
+      color: #2d3436;
+      text-align: center;
+    }
+
+    .lang-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-lang {
+      background-color: #ffeaa7;
+      border: 3px solid #fdcb6e;
+      padding: 15px 25px;
+      border-radius: 20px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #fdcb6e;
+      transition: transform 0.1s;
+    }
+
+    .btn-lang:active {
+      transform: translateY(4px);
+    }
+
+    /* ZONA DE JUEGO */
+    .game-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* BARRA DE PACIENCIA / TIEMPO */
+    .timer-container {
+      width: 100%;
+      background-color: #dfe6e9;
+      border-radius: 10px;
+      height: 18px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      border: 2px solid #636e72;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background-color: #00b894;
+      transition: width 0.2s linear, background-color 0.3s;
+    }
+
+    /* CLIENTE Y PEDIDO */
+    .customer-box {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background-color: #eccc68;
+      padding: 15px;
+      border-radius: 20px;
+      width: 100%;
+      margin-bottom: 15px;
+      border: 3px solid #ffa502;
+    }
+
+    .customer-avatar {
+      font-size: 50px;
+    }
+
+    .speech-bubble {
+      background: white;
+      padding: 12px;
+      border-radius: 15px;
+      font-size: 18px;
+      color: #2d3436;
+      font-weight: bold;
+      flex-grow: 1;
+      border: 2px solid #2d3436;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-audio {
+      background-color: #74b9ff;
+      border: none;
+      font-size: 22px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* CESTA Y MOSTRADOR */
+    .basket-area {
+      background-color: #ffeaa7;
+      border: 3px dashed #fdcb6e;
+      border-radius: 20px;
+      width: 100%;
+      min-height: 90px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .basket-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 32px;
+    }
+
+    /* MOSTRADOR DE FRUTAS */
+    .fruit-shelf {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .fruit-card {
+      background-color: #f1f2f6;
+      border: 3px solid #ced6e0;
+      border-radius: 15px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #ced6e0;
+    }
+
+    .fruit-card.rotten {
+      background-color: #ffeaa7;
+      border-color: #d63031;
+    }
+
+    .fruit-card:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #ced6e0;
+    }
+
+    .fruit-icon { font-size: 35px; }
+    .fruit-name { font-size: 11px; color: #2d3436; margin-top: 4px; text-align: center; }
+
+    /* CONTROLES */
+    .controls {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-action {
+      flex: 2;
+      background-color: #00b894;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #008f72;
+    }
+
+    .btn-clear {
+      flex: 1;
+      background-color: #ff7675;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #d63031;
+    }
+
+    .feedback {
+      font-size: 16px;
+      font-weight: bold;
+      height: 25px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .correct-text { color: #00b894; }
+    .wrong-text { color: #d63031; }
+
+    .score-badge {
+      font-size: 16px;
+      color: #2d3436;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    /* PANTALLA FINAL */
+    .win-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .win-title {
+      font-size: 28px;
+      color: #00b894;
+    }
+
+    .win-sub {
+      font-size: 20px;
+      color: #2d3436;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍎 SUPERMERCADITO DESAFÍO 🛍️</h1>
+
+  <div class="container">
+    
+    <!-- ELECCIÓN DE IDIOMA -->
+    <div class="lang-selection" id="lang-screen">
+      <div class="lang-title">ELIGE EL IDIOMA DEL MERCADO</div>
+      <div class="lang-buttons">
+        <button class="btn-lang" onclick="selectLanguage('en')">🇬🇧 INGLÉS / ENGLISH</button>
+        <button class="btn-lang" onclick="selectLanguage('va')">🏴‍☠️ VALENCIÀ</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE JUEGO -->
+    <div class="game-area" id="game-screen">
+      
+      <div class="score-badge" id="score-tag">...</div>
+
+      <!-- PACIENCIA DEL CLIENTE -->
+      <div class="timer-container">
+        <div class="timer-bar" id="timer-bar"></div>
+      </div>
+
+      <!-- CLIENTE -->
+      <div class="customer-box">
+        <div class="customer-avatar" id="customer-avatar">🐰</div>
+        <div class="speech-bubble">
+          <span id="speech-text">...</span>
+          <button class="btn-audio" onclick="speakOrder()">🔊</button>
+        </div>
+      </div>
+
+      <!-- CESTA -->
+      <div class="basket-area">
+        <div id="basket-title" style="font-size: 12px; color: #d63031; margin-bottom: 5px;">🛒 TU CESTA:</div>
+        <div class="basket-items" id="basket-items"></div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <!-- MOSTRADOR DE FRUTAS -->
+      <div class="fruit-shelf" id="fruit-shelf"></div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="controls">
+        <button class="btn-clear" id="btn-clear-text" onclick="clearBasket()">VACIAR 🗑️</button>
+        <button class="btn-action" id="btn-deliver-text" onclick="checkOrder()">ENTREGAR 🛍️</button>
+      </div>
+
+    </div>
+
+    <!-- PANTALLA DE VICTORIA -->
+    <div class="win-screen" id="win-screen">
+      <div style="font-size: 80px;">🏆🌟</div>
+      <div class="win-title" id="win-title">...</div>
+      <div class="win-sub" id="win-sub">...</div>
+      <button class="btn-action" id="win-btn" style="flex: initial; padding: 15px 30px;" onclick="location.reload()">...</button>
+    </div>
+
+  </div>
+
+  <script>
+    const fruitsData = [
+      { id: "apple", icon: "🍎", en_s: "APPLE", en_p: "APPLES", va_s: "POMA", va_p: "POMES" },
+      { id: "banana", icon: "🍌", en_s: "BANANA", en_p: "BANANAS", va_s: "PLÀTAN", va_p: "PLÀTANS" },
+      { id: "orange", icon: "🍊", en_s: "ORANGE", en_p: "ORANGES", va_s: "TARONJA", va_p: "TARONGES" },
+      { id: "strawberry", icon: "🍓", en_s: "STRAWBERRY", en_p: "STRAWBERRIES", va_s: "MADUIXA", va_p: "MADUIXES" },
+      { id: "pear", icon: "🍐", en_s: "PEAR", en_p: "PEARS", va_s: "PERA", va_p: "PERES" },
+      { id: "grape", icon: "🍇", en_s: "GRAPE", en_p: "GRAPES", va_s: "RAÏM", va_p: "RAÏMS" }
+    ];
+
+    const numbersData = [
+      { num: 1, en: "ONE", va: "UNA" },
+      { num: 2, en: "TWO", va: "DUES" },
+      { num: 3, en: "THREE", va: "TRES" }
+    ];
+
+    const customers = ["🐰", "🦊", "🐻", "🐼", "🦁", "🐸"];
+    const TOTAL_ORDERS = 5;
+
+    let currentLang = 'en';
+    let currentOrder = [];
+    let orderTextToSpeak = "";
+    let basket = [];
+    let completedOrders = 0;
+    let timerInterval = null;
+    let timeLeft = 100;
+
+    function selectLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('lang-screen').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'flex';
+      
+      // Adaptar interfaz secundaria
+      if (currentLang === 'en') {
+        document.getElementById('basket-title').innerText = "🛒 YOUR BASKET:";
+        document.getElementById('btn-clear-text').innerText = "EMPTY 🗑️";
+        document.getElementById('btn-deliver-text').innerText = "DELIVER 🛍️";
+      } else {
+        document.getElementById('basket-title').innerText = "🛒 LA TEUA CABASSA:";
+        document.getElementById('btn-clear-text').innerText = "BUIDAR 🗑️";
+        document.getElementById('btn-deliver-text').innerText = "ENTREGAR 🛍️";
+      }
+
+      completedOrders = 0;
+      updateScoreUI();
+      newOrder();
+    }
+
+    function renderShelf() {
+      const shelf = document.getElementById('fruit-shelf');
+      shelf.innerHTML = '';
+
+      let itemsToDisplay = fruitsData.map(f => ({ ...f, isRotten: false }));
+
+      itemsToDisplay.push(
+        { id: "rotten_apple", icon: "🐛🍎", en_s: "ROTTEN APPLE", va_s: "POMA POCHA", isRotten: true },
+        { id: "rotten_banana", icon: "🪰🍌", en_s: "ROTTEN BANANA", va_s: "PLÀTAN POCHO", isRotten: true }
+      );
+
+      itemsToDisplay.sort(() => 0.5 - Math.random());
+
+      itemsToDisplay.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `fruit-card ${item.isRotten ? 'rotten' : ''}`;
+        card.onclick = () => addToBasket(item);
+        
+        let nameText = "";
+        if (item.isRotten) {
+          nameText = currentLang === 'en' ? item.en_s : item.va_s;
+        } else {
+          nameText = currentLang === 'en' ? item.en_p : item.va_p;
+        }
+
+        card.innerHTML = `
+          <div class="fruit-icon">${item.icon}</div>
+          <div class="fruit-name">${nameText}</div>
+        `;
+        shelf.appendChild(card);
+      });
+    }
+
+    function newOrder() {
+      basket = [];
+      renderBasket();
+      document.getElementById('feedback').innerText = '';
+      renderShelf();
+
+      const numItems = Math.random() > 0.4 ? 2 : 1; 
+      const shuffledFruits = [...fruitsData].sort(() => 0.5 - Math.random());
+
+      currentOrder = [];
+      let speechParts = [];
+
+      for(let i=0; i<numItems; i++) {
+        const randomNumObj = numbersData[Math.floor(Math.random() * numbersData.length)];
+        const fruit = shuffledFruits[i];
+        
+        currentOrder.push({ fruit: fruit, count: randomNumObj.num });
+
+        let nText = "";
+        let fText = "";
+
+        if (currentLang === 'en') {
+          nText = randomNumObj.en;
+          fText = randomNumObj.num === 1 ? fruit.en_s : fruit.en_p;
+        } else {
+          if (randomNumObj.num === 1) {
+            nText = (fruit.id === "banana" || fruit.id === "grape") ? "UN" : "UNA";
+            fText = fruit.va_s;
+          } else {
+            nText = randomNumObj.va;
+            fText = fruit.va_p;
+          }
+        }
+        speechParts.push(`${nText} ${fText}`);
+      }
+
+      const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
+      document.getElementById('customer-avatar').innerText = randomCustomer;
+
+      if (currentLang === 'en') {
+        orderTextToSpeak = "I WANT " + speechParts.join(" AND ");
+      } else {
+        orderTextToSpeak = "VULL " + speechParts.join(" I ");
+      }
+
+      document.getElementById('speech-text').innerText = orderTextToSpeak;
+      speakOrder();
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 100;
+      const bar = document.getElementById('timer-bar');
+      bar.style.width = '100%';
+      bar.style.backgroundColor = '#00b894';
+
+      timerInterval = setInterval(() => {
+        timeLeft -= 1.2; 
+        bar.style.width = timeLeft + '%';
+
+        if (timeLeft < 40) {
+          bar.style.backgroundColor = '#d63031';
+        } else if (timeLeft < 70) {
+          bar.style.backgroundColor = '#ffeaa7';
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeOut();
+        }
+      }, 400);
+    }
+
+    function timeOut() {
+      document.getElementById('feedback').className = "feedback wrong-text";
+      document.getElementById('feedback').innerText = currentLang === 'en' ? "TIME OUT! 😞" : "S'HA ACABAT EL TEMPS! 😞";
+      setTimeout(newOrder, 2000);
+    }
+
+    function speakOrder() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(orderTextToSpeak);
+        utterance.lang = currentLang === 'en' ? 'en-US' : 'ca-ES'; 
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function addToBasket(item) {
+      if (item.isRotten) {
+        const feedbackEl = document.getElementById('feedback');
+        feedbackEl.className = "feedback wrong-text";
+        feedbackEl.innerText = currentLang === 'en' ? "EWW! THAT FRUIT IS ROTTEN! 🐛" : "ECCS! EIXA FRUTA ESTÀ POCHA! 🐛";
+        
+        timeLeft = Math.max(0, timeLeft - 20);
+        return;
+      }
+
+      basket.push(item);
+      renderBasket();
+    }
+
+    function clearBasket() {
+      basket = [];
+      renderBasket();
+    }
+
+    function renderBasket() {
+      const basketContainer = document.getElementById('basket-items');
+      basketContainer.innerHTML = '';
+      basket.forEach(fruit => {
+        const span = document.createElement('span');
+        span.innerText = fruit.icon;
+        basketContainer.appendChild(span);
+      });
+    }
+
+    function checkOrder() {
+      clearInterval(timerInterval);
+      const feedbackEl = document.getElementById('feedback');
+
+      let isCorrect = true;
+      let totalRequired = 0;
+
+      currentOrder.forEach(item => {
+        totalRequired += item.count;
+        const countInBasket = basket.filter(f => f.id === item.fruit.id).length;
+        if (countInBasket !== item.count) {
+          isCorrect = false;
+        }
+      });
+
+      if (basket.length !== totalRequired) {
+        isCorrect = false;
+      }
+
+      if (isCorrect) {
+        completedOrders++;
+        updateScoreUI();
+
+        if (completedOrders >= TOTAL_ORDERS) {
+          showWinScreen();
+        } else {
+          feedbackEl.className = "feedback correct-text";
+          feedbackEl.innerText = currentLang === 'en' ? "PERFECT ORDER! 🌟" : "COMANDA PERFECTA! 🌟";
+          setTimeout(newOrder, 1500);
+        }
+      } else {
+        feedbackEl.className = "feedback wrong-text";
+        feedbackEl.innerText = currentLang === 'en' ? "INCORRECT ORDER! TRY AGAIN ❌" : "COMANDA INCORRECTA! TORNA A PROVAR ❌";
+        setTimeout(startTimer, 1500);
+      }
+    }
+
+    function updateScoreUI() {
+      const label = currentLang === 'en' ? "ORDERS" : "COMANDES";
+      document.getElementById('score-tag').innerText = `${label}: ${completedOrders} / ${TOTAL_ORDERS}`;
+    }
+
+    function showWinScreen() {
+      document.getElementById('game-screen').style.display = 'none';
+      const winScreen = document.getElementById('win-screen');
+      winScreen.style.display = 'flex';
+
+      if (currentLang === 'en') {
+        document.getElementById('win-title').innerText = "GREAT JOB! YOU WON! 🏆";
+        document.getElementById('win-sub').innerText = "You completed all 5 orders!";
+        document.getElementById('win-btn').innerText = "PLAY AGAIN! 🔄";
+      } else {
+        document.getElementById('win-title').innerText = "MOLT BÉ! HAS GUANYAT! 🏆";
+        document.getElementById('win-sub').innerText = "Has completat les 5 comandes!";
+        document.getElementById('win-btn').innerText = "TORNAR A JUGAR! 🔄";
+      }
+    }
+  </script>
+</body>
+</html>
