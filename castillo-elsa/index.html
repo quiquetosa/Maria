@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EL CASTILLO DE ELSA - APRENDE JUGANDO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+      text-transform: uppercase;
+    }
+
+    body {
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+
+    h1 {
+      color: #02475e;
+      text-shadow: 2px 2px 4px #ffffff;
+      margin-bottom: 10px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    /* Contenedor principal */
+    .container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 950px;
+      height: 85vh;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border: 5px solid #70a1ff;
+    }
+
+    /* =========================================
+       NUEVA SECCIÓN: EL CASTILLO VISIBLE
+       ========================================= */
+    .castle-section {
+      width: 45%;
+      /* IMAGEN DEL CASTILLO - Puedes cambiar esta URL por otra si quieres */
+      background-image: url('https://i.pinimg.com/474x/c0/e8/e4/c0e8e443dde464e9bd158ad37cdb524d.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      
+      border-right: 5px solid #70a1ff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Bloques de "nieve" que ocultan el castillo */
+    .castle-block {
+      flex: 1; /* Divide el espacio vertical en partes iguales */
+      width: 100%;
+      background-color: #f0f8ff; /* Color de la "nieve/hielo" que oculta */
+      border-bottom: 1px solid #d1e8ff;
+      opacity: 1; /* Totalmente visible al principio */
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Clase que "elimina" el bloque cuando se acierta */
+    .castle-block.revealed {
+      opacity: 0; /* Desaparece */
+      pointer-events: none; /* No se puede tocar */
+      transform: scale(1.1); /* Efecto de desvanecimiento */
+    }
+
+    /* =========================================
+       LADO DERECHO: EL JUEGO (Mejorado)
+       ========================================= */
+    .game-section {
+      width: 55%;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .header-game {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      color: #02475e;
+      font-weight: bold;
+    }
+
+    #category-tag {
+      background-color: #70a1ff;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 10px;
+    }
+
+    .question-box {
+      background-color: #eccc68;
+      color: #2f3542;
+      padding: 20px;
+      border-radius: 20px;
+      font-size: 24px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      border: 4px solid #ffa502;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 15px 0;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .btn-option {
+      background-color: #70a1ff;
+      color: white;
+      border: 3px solid #1e90ff;
+      padding: 18px;
+      border-radius: 18px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #1e90ff;
+      transition: all 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .btn-option:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #1e90ff;
+    }
+
+    /* Colores para feedback */
+    .btn-option.correct {
+      background-color: #2ed573 !important;
+      border-color: #26af5f !important;
+      box-shadow: 0 6px 0 #26af5f !important;
+    }
+
+    .btn-option.wrong {
+      background-color: #ff4757 !important;
+      border-color: #ff2a3b !important;
+      box-shadow: 0 6px 0 #ff2a3b !important;
+    }
+
+    .feedback {
+      font-size: 20px;
+      font-weight: bold;
+      height: 30px;
+      text-align: center;
+    }
+
+    .correct-text { color: #2ed573; }
+    .wrong-text { color: #ff4757; }
+
+    .btn-restart {
+      background-color: #2ed573;
+      color: white;
+      border: none;
+      padding: 18px 35px;
+      font-size: 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #26af5f;
+      display: none;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+      }
+      .castle-section, .game-section {
+        width: 100%;
+      }
+      .castle-section {
+        height: 30vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>❄️ DESCUBRE EL CASTILLO DE ELSA ❄️</h1>
+
+  <div class="container">
+    <!-- SECCIÓN IZQUIERDA: EL CASTILLO (Ahora con bloques ocultos) -->
+    <div class="castle-section" id="castle">
+      <div class="castle-block" id="block-10"></div>
+      <div class="castle-block" id="block-9"></div>
+      <div class="castle-block" id="block-8"></div>
+      <div class="castle-block" id="block-7"></div>
+      <div class="castle-block" id="block-6"></div>
+      <div class="castle-block" id="block-5"></div>
+      <div class="castle-block" id="block-4"></div>
+      <div class="castle-block" id="block-3"></div>
+      <div class="castle-block" id="block-2"></div>
+      <div class="castle-block" id="block-1"></div>
+    </div>
+
+    <!-- SECCIÓN DERECHA: PREGUNTAS (Mejorado) -->
+    <div class="game-section">
+      <div class="header-game">
+        <span id="category-tag">MATERIA</span>
+        <span id="score-tag">ACIERTO: 0 / 10</span>
+      </div>
+
+      <div class="question-box" id="question">
+        CARGANDO PREGUNTA...
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="options-grid" id="options"></div>
+
+      <button class="btn-restart" id="btn-restart" onclick="startGame()">¡JUGAR DE NUEVO! 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    // BATERÍA COMPLETA DE PREGUNTAS
+    const questionBank = [
+      // MATEMÁTICAS
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTAS MANZANAS HAY? 🍎🍎🍎", opts: ["3", "5", "1"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿QUÉ NÚMERO VIENE DESPUÉS DEL 2?", opts: ["3", "1", "4"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTOS SOLES HAY EN EL CIELO?", opts: ["1", "2", "10"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTAS PATAS TIENE UN PERRO? 🐶", opts: ["4", "2", "6"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁL ES EL NÚMERO MÁS GRANDE?", opts: ["8", "3", "1"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTOS DEDOS TIENES EN UNA MANO? 🖐️", opts: ["5", "10", "3"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTAS RUEDAS TIENE UN COCHE? 🚗", opts: ["4", "2", "3"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁL ES LA FORMA DE UNA PELOTA? ⚽", opts: ["CÍRCULO ⚪", "CUADRADO ⏹️", "TRIÁNGULO 🔺"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTOS PATOS HAY? 🦆🦆", opts: ["2", "1", "4"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "1 + 1 ES IGUAL A...", opts: ["2", "3", "1"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁL ES LA FORMA DE UN LIBRO? 📖", opts: ["RECTÁNGULO 📄", "CÍRCULO ⚪", "ESTRELLA ⭐"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTAS OREJAS TIENE UN CONEJO? 🐰", opts: ["2", "1", "4"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿CUÁNTOS GLOBOS HAY? 🎈🎈🎈🎈", opts: ["4", "2", "6"], ans: 0 },
+
+      // INGLÉS
+      { cat: "INGLÉS", q: "¿CÓMO SE DICE 'ROJO' EN INGLÉS?", opts: ["RED ❤️", "BLUE 💙", "GREEN 💚"], ans: 0 },
+      { cat: "INGLÉS", q: "¿QUÉ ANIMAL ES UN 'CAT'? 🐱", opts: ["GATO", "PERRO", "PÁJARO"], ans: 0 },
+      { cat: "INGLÉS", q: "EL COLOR 'BLUE' ES... 💙", opts: ["AZUL", "AMARILLO", "VERDE"], ans: 0 },
+      { cat: "INGLÉS", q: "¿QUÉ SIGNIFICA 'DOG'? 🐶", opts: ["PERRO", "PEZ", "RANA"], ans: 0 },
+      { cat: "INGLÉS", q: "¿CÓMO SE DICE 'HOLA' EN INGLÉS?", opts: ["HELLO 👋", "BYE BYE 👋", "NO"], ans: 0 },
+      { cat: "INGLÉS", q: "EL COLOR 'YELLOW' ES... 💛", opts: ["AMARILLO", "ROJO", "ROSA"], ans: 0 },
+      { cat: "INGLÉS", q: "¿QUÉ ES 'FISH'? 🐟", opts: ["PEZ", "OJO", "FLOR"], ans: 0 },
+      { cat: "INGLÉS", q: "¿CÓMO SE DICE 'GRACIAS' EN INGLÉS?", opts: ["THANK YOU", "PLEASE", "YES"], ans: 0 },
+      { cat: "INGLÉS", q: "EL COLOR 'GREEN' ES... 💚", opts: ["VERDE", "AZUL", "BLANCO"], ans: 0 },
+      { cat: "INGLÉS", q: "¿QUÉ ANIMAL ES UN 'BIRD'? 🐦", opts: ["PÁJARO", "GATO", "OSO"], ans: 0 },
+      { cat: "INGLÉS", q: "¿QUÉ SIGNIFICA 'SUN'? ☀️", opts: ["SOL", "LUNA", "ESTRELLA"], ans: 0 },
+      { cat: "INGLÉS", q: "¿CÓMO SE DICE 'UNO' EN INGLÉS?", opts: ["ONE", "TWO", "THREE"], ans: 0 },
+
+      // VALENCIANO
+      { cat: "VALENCIANO", q: "COM ES DIU AQUEST ANIMAL? 🐶", opts: ["GOS", "GAT", "OCELL"], ans: 0 },
+      { cat: "VALENCIANO", q: "EL COLOR 'GROC' ÉS... 💛", opts: ["AMARILLO", "ROJO", "AZUL"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'GATO' EN VALENCIÀ? 🐱", opts: ["GAT", "GOS", "PIPA"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿DE QUIN COLOR ÉS EL MAR? 🌊", opts: ["BLAU 💙", "VERMELL ❤️", "NEGRE 🖤"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'BON DIA'?", opts: ["BUENOS DÍAS", "BUENAS NOCHES", "ADIÓS"], ans: 0 },
+      { cat: "VALENCIANO", q: "EL COLOR 'VERMELL' ÉS... ❤️", opts: ["ROJO", "VERDE", "AMARILLO"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM SE DIU AQUESTA FRUTA? 🍎", opts: ["POMA", "TARONJA", "PLÀTAN"], ans: 0 },
+      { cat: "VALENCIANO", q: "EL 'SOL' ÉS DE COLOR... ☀️", opts: ["GROC 💛", "VERD 💚", "BLAU 💙"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'PÁJARO' EN VALENCIÀ? 🐦", opts: ["OCELL", "PEIX", "RANA"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'AGUA' EN VALENCIÀ? 💧", opts: ["AIGUA", "LLET", "SUC"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'CASA'? 🏠", opts: ["CASA", "ESCOLA", "PARC"], ans: 0 },
+      { cat: "VALENCIANO", q: "EL COLOR 'VERD' ÉS... 💚", opts: ["VERDE", "AZUL", "ROSA"], ans: 0 },
+      { cat: "VALENCIANO", q: "¿COM ES DIU 'NUBE' EN VALENCIÀ? ☁️", opts: ["NÚVOL", "SOL", "LUNA"], ans: 0 },
+
+      // CIENCIAS
+      { cat: "CIENCIAS", q: "¿QUÉ NECESITA UNA PLANTA PARA VIVIR? 🌱", opts: ["AGUA Y SOL 💧☀️", "CARAMELOS 🍬", "JUGUETES 🧸"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿DÓNDE VIVEN LOS PECES? 🐟", opts: ["EN EL AGUA 🌊", "EN UN ÁRBOL 🌳", "EN EL AIRE ☁️"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿CÓMO ES EL HIELO DE ELSA? 🧊", opts: ["FRÍO ❄️", "CALIENTE 🔥", "DULCE 🍭"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ SALE POR LA NOCHE EN EL CIELO?", opts: ["LA LUNA Y ESTRELLAS 🌙⭐", "EL SOL ☀️", "UN ARCOÍRIS 🌈"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ ANIMAL HACE 'MIAU'? 🐾", opts: ["EL GATO 🐱", "EL PERRO 🐶", "LA VACA 🐮"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ ANIMAL TIENE PLUMAS Y VUELA? 🕊️", opts: ["PÁJARO", "PEZ", "GATO"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ ESTACIÓN DEL AÑO TIENE NIEVE? ☃️", opts: ["INVIERNO ❄️", "VERANO ☀️", "PRIMAVERA 🌸"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿DÓNDE VIVE EL OSO POLAR? 🐻‍❄️", opts: ["EN EL HIELO ❄️", "EN EL DESIERTO 🌵", "EN EL MAR 🌊"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ SENTIDO USAMOS PARA ESCUCHAR MÚSICA? 🎶", opts: ["LAS OREJAS 👂", "LOS OJOS 👁️", "LA NARIZ 👃"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ SENTIDO USAMOS PARA VER DIBUJOS?", opts: ["LOS OJOS 👁️", "LA BOCA 👄", "LAS MANOS 🖐️"], ans: 0 },
+      { cat: "CIENCIAS", q: "¿QUÉ ANIMAL HACE 'MU-MU'? 🐮", opts: ["LA VACA", "EL OSO", "LA OVEJA"], ans: 0 },
+      { cat: "CIENCIAS", q: "EL FUEGO ES... 🔥", opts: ["CALIENTE", "FRÍO", "MOJADO"], ans: 0 }
+    ];
+
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledOptions = [];
+    let correctShuffledIndex = -1;
+
+    function startGame() {
+      // Reset Castillo (Restaurar bloques)
+      const blocks = document.querySelectorAll('.castle-block');
+      blocks.forEach(block => block.classList.remove('revealed'));
+
+      // Mezclar preguntas y coger 10
+      selectedQuestions = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, 10);
+      
+      currentQuestionIndex = 0;
+      score = 0;
+
+      document.getElementById('btn-restart').style.display = 'none';
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('question').style.display = 'flex';
+      updateScoreUI();
+      loadQuestion();
+    }
+
+    // =========================================
+    // NUEVA FUNCIÓN: MEZCLAR OPCIONES (SHUFFLE)
+    // =========================================
+    function shuffleOptions(opts, correctIndex) {
+      // Guardamos la respuesta correcta original
+      const correctText = opts[correctIndex];
+      
+      // Mezclamos una copia de las opciones
+      shuffledOptions = [...opts].sort(() => 0.5 - Math.random());
+      
+      // Buscamos dónde ha quedado la respuesta correcta
+      correctShuffledIndex = shuffledOptions.indexOf(correctText);
+    }
+
+    function loadQuestion() {
+      document.getElementById('feedback').innerText = '';
+      const qData = selectedQuestions[currentQuestionIndex];
+      
+      // Mezclar las opciones ANTES de mostrarlas
+      shuffleOptions(qData.opts, qData.ans);
+      
+      document.getElementById('category-tag').innerText = qData.cat;
+      document.getElementById('question').innerText = qData.q;
+
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+
+      // Mostrar las opciones mezcladas
+      shuffledOptions.forEach((optionText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = optionText;
+        // La comparación se hace contra el nuevo índice mezclado
+        btn.onclick = (e) => checkAnswer(index, e.target);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIndex, clickedBtn) {
+      const feedbackEl = document.getElementById('feedback');
+      
+      // Comparamos el índice pulsado con el nuevo índice correcto
+      if (selectedIndex === correctShuffledIndex) {
+        score++;
+        
+        // Efecto visual en el botón
+        clickedBtn.classList.add('correct');
+        
+        feedbackEl.className = "feedback correct-text";
+        feedbackEl.innerText = "¡MUY BIEN! 🌟 ¡BLOQUE REVELADO!";
+        
+        // MODIFICADO: Ahora revelamos un bloque de abajo hacia arriba
+        document.getElementById(`block-${score}`).classList.add('revealed');
+        
+        updateScoreUI();
+        disableButtons();
+
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < 10) {
+            loadQuestion();
+          } else {
+            endGame();
+          }
+        }, 1600);
+
+      } else {
+        // Feedback visual de error en el botón pulsado
+        clickedBtn.classList.add('wrong');
+        feedbackEl.className = "feedback wrong-text";
+        feedbackEl.innerText = "¡INTÉNTALO DE NUEVO! 💪";
+        
+        // Quitamos la clase de error tras un momento para que pueda volver a intentar
+        setTimeout(() => {
+          clickedBtn.classList.remove('wrong');
+          feedbackEl.innerText = '';
+        }, 1000);
+      }
+    }
+
+    function disableButtons() {
+      const btns = document.querySelectorAll('.btn-option');
+      btns.forEach(btn => btn.disabled = true);
+    }
+
+    function updateScoreUI() {
+      document.getElementById('score-tag').innerText = `ACIERTO: ${score} / 10`;
+    }
+
+    function endGame() {
+      document.getElementById('question').style.display = "none";
+      document.getElementById('options').innerHTML = "🎉 ¡ENHORABUENA! ¡HAS REVELADO EL CASTILLO COMPLETO DE ELSA! ❄️👑";
+      document.getElementById('options').style.fontSize = "22px";
+      document.getElementById('options').style.textAlign = "center";
+      document.getElementById('options').style.color = "#02475e";
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('btn-restart').style.display = 'block';
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener("DOMContentLoaded", startGame);
+  </script>
+</body>
+</html>
