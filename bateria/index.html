@@ -37,7 +37,7 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       background-color: rgba(0, 0, 0, 0.4);
       border-radius: 25px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
@@ -50,15 +50,15 @@
     .level-selector {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .level-card {
       background: rgba(255, 255, 255, 0.1);
       border: 3px solid rgba(255, 255, 255, 0.3);
-      padding: 15px;
+      padding: 12px 15px;
       border-radius: 15px;
       cursor: pointer;
       display: flex;
@@ -78,7 +78,7 @@
       background: #636e72;
     }
 
-    .level-title { font-size: 16px; font-weight: bold; }
+    .level-title { font-size: 15px; font-weight: bold; }
     .level-sub { font-size: 11px; opacity: 0.9; text-transform: none; margin-top: 3px; }
 
     /* ZONA DE JUEGO */
@@ -111,39 +111,48 @@
     /* DRUM KIT GRID */
     .drum-kit {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 15px;
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
       margin-bottom: 20px;
+    }
+
+    .grid-4 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-6 {
+      grid-template-columns: repeat(3, 1fr);
     }
 
     .pad {
       aspect-ratio: 1;
       border-radius: 50%;
       cursor: pointer;
-      border: 8px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+      border: 6px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
       transition: transform 0.1s;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 38px;
+      font-size: 30px;
       user-select: none;
     }
 
     .pad:active { transform: scale(0.95); }
 
-    /* COLORES */
+    /* COLORES DE LOS PARCHES */
     .pad-red { background-color: #ff7675; }
     .pad-blue { background-color: #74b9ff; }
     .pad-green { background-color: #55efc4; }
     .pad-yellow { background-color: #ffeaa7; }
+    .pad-orange { background-color: #e17055; }
+    .pad-purple { background-color: #a29bfe; }
 
     .pad.active {
-      filter: brightness(2);
+      filter: brightness(1.8);
       transform: scale(1.08);
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
     }
 
     .btn-main {
@@ -169,7 +178,7 @@
       gap: 15px;
     }
 
-    .win-title { font-size: 24px; color: #ffeaa7; }
+    .win-title { font-size: 22px; color: #ffeaa7; }
   </style>
 </head>
 <body>
@@ -180,31 +189,47 @@
     
     <!-- MENÚ DE NIVELES -->
     <div id="level-menu" style="width: 100%;">
-      <p style="text-align: center; margin-bottom: 15px; color: #dfe6e9;">¡ELIGE TU NIVEL DE BATERISTA!</p>
+      <p style="text-align: center; margin-bottom: 12px; color: #dfe6e9;">ELIGE TU NIVEL DE BATERISTA</p>
       
       <div class="level-selector">
         <div class="level-card unlocked" onclick="selectLevel(1)">
           <div>
             <div class="level-title">NIVEL 1: PRINCIPIANTE 🌟</div>
-            <div class="level-sub">4 Rondas - Velocidad Normal</div>
+            <div class="level-sub">4 Colores - 4 Rondas - Ritmo Suave</div>
           </div>
           <div>▶</div>
         </div>
 
         <div class="level-card locked" id="level-2-btn" onclick="selectLevel(2)">
           <div>
-            <div class="level-title">NIVEL 2: ESTRELLA DEL RITMO ⚡</div>
-            <div class="level-sub">6 Rondas - ¡Más Rápido!</div>
+            <div class="level-title">NIVEL 2: RITMO CRECIENTE ⚡</div>
+            <div class="level-sub">4 Colores - 6 Rondas - Acelera Poco a Poco</div>
           </div>
           <div id="lock-2">🔒</div>
         </div>
 
         <div class="level-card locked" id="level-3-btn" onclick="selectLevel(3)">
           <div>
-            <div class="level-title">NIVEL 3: SÚPER CONCIERTO 👑</div>
-            <div class="level-sub">8 Rondas - Modo Experto + Luces</div>
+            <div class="level-title">NIVEL 3: RÁPIDO Y LUVES 💥</div>
+            <div class="level-sub">4 Colores - 8 Rondas - Alta Velocidad</div>
           </div>
           <div id="lock-3">🔒</div>
+        </div>
+
+        <div class="level-card locked" id="level-4-btn" onclick="selectLevel(4)">
+          <div>
+            <div class="level-title">NIVEL 4: 6 PARCHES 🎨</div>
+            <div class="level-sub">6 Colores - 6 Rondas - ¡Nuevos Sonidos!</div>
+          </div>
+          <div id="lock-4">🔒</div>
+        </div>
+
+        <div class="level-card locked" id="level-5-btn" onclick="selectLevel(5)">
+          <div>
+            <div class="level-title">NIVEL 5: SUPER CONCIERTO 👑</div>
+            <div class="level-sub">6 Colores - 8 Rondas - Aceleración Máxima</div>
+          </div>
+          <div id="lock-5">🔒</div>
         </div>
       </div>
     </div>
@@ -218,30 +243,36 @@
 
       <div class="status-msg" id="status-msg">...</div>
 
-      <div class="drum-kit">
-        <div class="pad pad-red" id="pad-0" onclick="handlePadClick(0)">🔴</div>
-        <div class="pad pad-blue" id="pad-1" onclick="handlePadClick(1)">🔵</div>
-        <div class="pad pad-green" id="pad-2" onclick="handlePadClick(2)">🟢</div>
-        <div class="pad pad-yellow" id="pad-3" onclick="handlePadClick(3)">🟡</div>
+      <div class="drum-kit grid-4" id="drum-kit">
+        <!-- Generado dinámicamente -->
       </div>
 
-      <button class="btn-main" onclick="returnToMenu()">MENU DE NIVELES 🏠</button>
+      <button class="btn-main" onclick="returnToMenu()">MENÚ DE NIVELES 🏠</button>
     </div>
 
     <!-- PANTALLA DE VICTORIA NIVEL -->
     <div class="win-screen" id="win-screen">
       <div style="font-size: 70px;">🏆🥁</div>
       <div class="win-title" id="win-title">¡NIVEL SUPERADO!</div>
-      <p style="font-size: 16px; color: #dfe6e9;" id="win-sub">¡Has tocado todos los ritmos a la perfección!</p>
+      <p style="font-size: 15px; color: #dfe6e9;" id="win-sub">¡Has tocado todos los ritmos a la perfección!</p>
       <button class="btn-main" onclick="returnToMenu()">CONTINUAR ➔</button>
     </div>
 
   </div>
 
   <script>
-    // SINTETIZADOR DE SONIDO
+    // SINTETIZADOR DE SONIDO (Nativas C4, E4, G4, C5, E5, G5)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const frequencies = [261.63, 329.63, 392.00, 523.25];
+    const frequencies = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+
+    const padConfigs = [
+      { id: 0, colorClass: "pad-red", icon: "🔴" },
+      { id: 1, colorClass: "pad-blue", icon: "🔵" },
+      { id: 2, colorClass: "pad-green", icon: "🟢" },
+      { id: 3, colorClass: "pad-yellow", icon: "🟡" },
+      { id: 4, colorClass: "pad-orange", icon: "🍊" },
+      { id: 5, colorClass: "pad-purple", icon: "🍇" }
+    ];
 
     function playSound(index) {
       if (audioCtx.state === 'suspended') {
@@ -254,20 +285,21 @@
       osc.frequency.setValueAtTime(frequencies[index], audioCtx.currentTime);
       
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.35);
+      osc.stop(audioCtx.currentTime + 0.3);
     }
 
-    // LÓGICA DE NIVELES Y PROGRESIÓN
-    let unlockedLevels = [1]; // Por defecto solo el nivel 1 abierto
+    let unlockedLevels = [1];
     let currentLevel = 1;
     let maxRounds = 4;
-    let speed = 700; // ms por nota
+    let totalPads = 4;
+    let baseSpeed = 750;
+    let speedStep = 0; // Cuánto acelera por ronda
 
     let sequence = [];
     let playerStep = 0;
@@ -281,24 +313,49 @@
       document.getElementById('level-menu').style.display = 'none';
       document.getElementById('game-area').style.display = 'flex';
 
-      // Ajustes de dificultad según nivel
+      // Configuración de niveles
       if (lvl === 1) {
-        maxRounds = 4;
-        speed = 750;
+        maxRounds = 4; totalPads = 4; baseSpeed = 800; speedStep = 20;
         document.getElementById('level-tag').innerText = "NIVEL 1 🌟";
       } else if (lvl === 2) {
-        maxRounds = 6;
-        speed = 550;
+        maxRounds = 6; totalPads = 4; baseSpeed = 700; speedStep = 45;
         document.getElementById('level-tag').innerText = "NIVEL 2 ⚡";
       } else if (lvl === 3) {
-        maxRounds = 8;
-        speed = 400;
-        document.getElementById('level-tag').innerText = "NIVEL 3 👑";
+        maxRounds = 8; totalPads = 4; baseSpeed = 550; speedStep = 35;
+        document.getElementById('level-tag').innerText = "NIVEL 3 💥";
+      } else if (lvl === 4) {
+        maxRounds = 6; totalPads = 6; baseSpeed = 650; speedStep = 30;
+        document.getElementById('level-tag').innerText = "NIVEL 4 🎨";
+      } else if (lvl === 5) {
+        maxRounds = 8; totalPads = 6; baseSpeed = 500; speedStep = 25;
+        document.getElementById('level-tag').innerText = "NIVEL 5 👑";
       }
 
+      renderDrumKit();
       sequence = [];
       round = 0;
       nextRound();
+    }
+
+    function renderDrumKit() {
+      const kit = document.getElementById('drum-kit');
+      kit.innerHTML = '';
+      kit.className = `drum-kit ${totalPads === 6 ? 'grid-6' : 'grid-4'}`;
+
+      for (let i = 0; i < totalPads; i++) {
+        const conf = padConfigs[i];
+        const pad = document.createElement('div');
+        pad.className = `pad ${conf.colorClass}`;
+        pad.id = `pad-${i}`;
+        pad.innerText = conf.icon;
+        pad.onclick = () => handlePadClick(i);
+        kit.appendChild(pad);
+      }
+    }
+
+    function getCurrentSpeed() {
+      // Calcula la velocidad para la ronda actual (aceleración progresiva)
+      return Math.max(250, baseSpeed - ((round - 1) * speedStep));
     }
 
     function nextRound() {
@@ -307,49 +364,51 @@
       document.getElementById('round-tag').innerText = `RONDA: ${round} / ${maxRounds}`;
       document.getElementById('status-msg').innerText = "👀 ¡ESCUCHA EL RITMO!";
       
-      sequence.push(Math.floor(Math.random() * 4));
+      sequence.push(Math.floor(Math.random() * totalPads));
       playSequence();
     }
 
     function playSequence() {
       isPlayingSequence = true;
       let i = 0;
+      const currentSpeed = getCurrentSpeed();
 
       const interval = setInterval(() => {
         if (i < sequence.length) {
-          activatePad(sequence[i]);
+          activatePad(sequence[i], currentSpeed);
           i++;
         } else {
           clearInterval(interval);
           isPlayingSequence = false;
           document.getElementById('status-msg').innerText = "👉 ¡TU TURNO!";
         }
-      }, speed);
+      }, currentSpeed);
     }
 
-    function activatePad(index) {
+    function activatePad(index, currentSpeed = 400) {
       const pad = document.getElementById(`pad-${index}`);
+      if (!pad) return;
+
       playSound(index);
       pad.classList.add('active');
 
-      // Efecto ambiental de luces en Nivel 3
-      if (currentLevel === 3) {
-        const colors = ['#e17055', '#0984e3', '#00b894', '#fdcb6e'];
-        document.body.style.background = colors[index];
+      if (currentLevel === 3 || currentLevel === 5) {
+        const bgColors = ['#e17055', '#0984e3', '#00b894', '#fdcb6e', '#d63031', '#6c5ce7'];
+        document.body.style.background = bgColors[index];
       }
 
       setTimeout(() => {
         pad.classList.remove('active');
-        if (currentLevel === 3) {
+        if (currentLevel === 3 || currentLevel === 5) {
           document.body.style.background = 'linear-gradient(135deg, #1e272e 0%, #0984e3 100%)';
         }
-      }, speed * 0.6);
+      }, currentSpeed * 0.6);
     }
 
     function handlePadClick(index) {
       if (isPlayingSequence || sequence.length === 0) return;
 
-      activatePad(index);
+      activatePad(index, getCurrentSpeed());
 
       if (index === sequence[playerStep]) {
         playerStep++;
@@ -364,19 +423,17 @@
           }
         }
       } else {
-        // ERROR: Repite la secuencia de esta ronda para no frustrar
         document.getElementById('status-msg').innerText = "❌ ¡PROVEM UN ALTRA VEGADA!";
         isPlayingSequence = true;
         setTimeout(() => {
           playerStep = 0;
           playSequence();
-        }, 1300);
+        }, 1200);
       }
     }
 
     function levelCompleted() {
-      // Desbloquear el siguiente nivel
-      if (currentLevel < 3 && !unlockedLevels.includes(currentLevel + 1)) {
+      if (currentLevel < 5 && !unlockedLevels.includes(currentLevel + 1)) {
         unlockedLevels.push(currentLevel + 1);
         updateMenuUI();
       }
@@ -385,25 +442,24 @@
       const winScreen = document.getElementById('win-screen');
       winScreen.style.display = 'flex';
 
-      if (currentLevel === 3) {
-        document.getElementById('win-title').innerText = "¡ERES LA REINA DE LA BATERÍA! 👑";
-        document.getElementById('win-sub').innerText = "¡Has completado TODOS los niveles del juego!";
+      if (currentLevel === 5) {
+        document.getElementById('win-title').innerText = "¡SÚPER REINA DEL RITMO! 👑🏆";
+        document.getElementById('win-sub').innerText = "¡Has superado los 5 niveles con 6 colores!";
       } else {
         document.getElementById('win-title').innerText = `¡NIVEL ${currentLevel} SUPERADO! 🎉`;
-        document.getElementById('win-sub').innerText = "¡Has desbloqueado el siguiente nivel!";
+        document.getElementById('win-sub').innerText = "¡Siguiente nivel desbloqueado!";
       }
     }
 
     function updateMenuUI() {
-      if (unlockedLevels.includes(2)) {
-        const l2 = document.getElementById('level-2-btn');
-        l2.className = 'level-card unlocked';
-        document.getElementById('lock-2').innerText = '▶';
-      }
-      if (unlockedLevels.includes(3)) {
-        const l3 = document.getElementById('level-3-btn');
-        l3.className = 'level-card unlocked';
-        document.getElementById('lock-3').innerText = '▶';
+      for (let i = 2; i <= 5; i++) {
+        if (unlockedLevels.includes(i)) {
+          const btn = document.getElementById(`level-${i}-btn`);
+          if (btn) {
+            btn.className = 'level-card unlocked';
+            document.getElementById(`lock-${i}`).innerText = '▶';
+          }
+        }
       }
     }
 
