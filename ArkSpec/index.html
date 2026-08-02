@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Arkanoid - Spectrum 48K Touch Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: none; /* Previene el zoom y scroll táctil del navegador */
+        }
+        body {
+            background-color: #050505;
+            color: #FFF;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            border: 8px solid #0000D7;
+            box-shadow: 0 0 25px rgba(0,0,215,0.4);
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 100vw;
+            max-height: 90vh;
+        }
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            width: 100%;
+            height: auto;
+            max-height: 90vh;
+            aspect-ratio: 4 / 3;
+        }
+        .controls-info {
+            margin-top: 8px;
+            color: #00E6E6;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="canvas" width="256" height="192"></canvas>
+</div>
+<div class="controls-info">
+    [PC: 🠠 🠢 / ESPACIO] | [TABLETA: Desliza para mover, Toque para lanzar/disparar]
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const PALETTE = {
+    BLACK: '#000000', BLUE: '#0000D7', RED: '#D70000', MAGENTA: '#D700D7',
+    GREEN: '#00D700', CYAN: '#00D7D7', YELLOW: '#D7D700', WHITE: '#D7D7D7',
+    BRIGHT_CYAN: '#00FFFF', BRIGHT_YELLOW: '#FFFF00', BRIGHT_WHITE: '#FFFFFF',
+    BRIGHT_RED: '#FF0000', BRIGHT_GREEN: '#00FF00', BRIGHT_MAGENTA: '#FF00FF'
+};
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep(freq, type = 'square', duration = 0.05) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+let score = 0;
+let lives = 3;
+let currentLevel = 0;
+let lasers = [];
+let powerups = [];
+
+const paddle = {
+    x: 108, y: 176, w: 32, h: 6, speed: 3,
+    type: 'NORMAL'
+};
+
+const ball = {
+    x: 124, y: 170, vx: 1.5, vy: -1.5, radius: 2.5, speed: 2,
+    attached: true,
+    isSuper: false
+};
+
+const BLOCK_TYPES = {
+    W: { color: PALETTE.WHITE, light: PALETTE.BRIGHT_WHITE, shadow: '#888888', pts: 50, hp: 1 },
+    O: { color: PALETTE.MAGENTA, light: PALETTE.BRIGHT_MAGENTA, shadow: '#800080', pts: 60, hp: 1 },
+    C: { color: PALETTE.CYAN, light: PALETTE.BRIGHT_CYAN, shadow: '#008080', pts: 70, hp: 1 },
+    G: { color: PALETTE.GREEN, light: PALETTE.BRIGHT_GREEN, shadow: '#008000', pts: 80, hp: 1 },
+    R: { color: PALETTE.RED, light: PALETTE.BRIGHT_RED, shadow: '#800000', pts: 90, hp: 1 },
+    Y: { color: PALETTE.YELLOW, light: PALETTE.BRIGHT_YELLOW, shadow: '#808000', pts: 120, hp: 1 },
+    S: { color: '#A8A8A8', light: '#FFFFFF', shadow: '#555555', pts: 100, hp: 2 },
+    X: { color: '#E6A100', light: '#FFD700', shadow: '#8B6500', pts: 0, hp: Infinity }
+};
+
+const LEVELS = [
+    ["                ", "                ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  OOOOOOOOOOOO  ", "  WWWWWWWWWWWW  "],
+    ["                ", "  SSSSSSSSSSSS  ", "  C  C  C  C    ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  OOOOOOOOOOOO  ", "  WWWWWWWWWWWW  "],
+    ["  X          X  ", "  X GGGGGGGGGG X  ", "  X RRRRRRRRRR X  ", "  X YYYYYYYYYY X  ", "  X CCCCCCCCCC X  ", "  X OOOOOOOOOO X  ", "  X WWWWWWWWWW X  ", "  X            X  "],
+    ["  SSSSSSSSSSSS  ", "  S  RRRRRR  S  ", "  S  YYYYYY  S  ", "  S  CCCCCC  S  ", "  S  OOOOOO  S  ", "  S  WWWWWW  S  ", "  SSSSSSSSSSSS  "],
+    ["  GGGG    GGGG  ", "  RRRR    RRRR  ", "  YYYY    YYYY  ", "  CCCC    CCCC  ", "  OOOO    OOOO  ", "  WWWW    WWWW  ", "  SSSS    SSSS  "],
+    ["  X  S  S  S  X ", "  X GGGGGGGGGG X", "  X RRRRRRRRRR X", "  X YYYYYYYYYY X", "  X CCCCCCCCCC X", "  X OOOOOOOOOO X", "  X            X"],
+    ["  RRRRRRRRRRRR  ", "  R          R  ", "  R YYYYYYYY R  ", "  R Y      Y R  ", "  R Y CCCC Y R  ", "  R Y C  C Y R  ", "  R Y CCCC Y R  "],
+    ["  X  X  X  X    ", "  SSSSSSSSSSSS  ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  OOOOOOOOOOOO  "],
+    ["  S          S  ", "  SG  R  Y  CS  ", "  SGG RR YY CCS ", "  SGGGRRYYYCCCS ", "  SGG RR YY CCS ", "  SG  R  Y  CS  ", "  S          S  "],
+    ["  WWWWWWWWWWWW  ", "  OOOOOOOOOOOO  ", "  CCCCCCCCCCCC  ", "  YYYYYYYYYYYY  ", "  RRRRRRRRRRRR  ", "  GGGGGGGGGGGG  ", "  SSSSSSSSSSSS  "],
+    ["  X            X", "  X SSSSSSSSSS X", "  X SGGGGGGGGS X", "  X SRRRRRRRRS X", "  X SYYYYYYYYS X", "  X SCCCCCCCCS X", "  X SOOOOOOOOS X"],
+    ["  C  G  R  Y  C ", "  C  G  R  Y  C ", "  C  G  R  Y  C ", "  C  G  R  Y  C ", "  C  G  R  Y  C ", "  C  G  R  Y  C ", "  SSSSSSSSSSSS  "],
+    ["  SSSSSSSSSSSS  ", "  X          X  ", "  X GGGGGGGG X  ", "  X RRRRRRRR X  ", "  X YYYYYYYY X  ", "  X CCCCCCCC X  ", "  X          X  "],
+    ["  R Y C G O W   ", "  Y C G O W R   ", "  C G O W R Y   ", "  G O W R Y C   ", "  O W R Y C G   ", "  W R Y C G O   ", "  SSSSSSSSSSSS  "],
+    ["  X GGGG GGGG X ", "  X RRRR RRRR X ", "  X YYYY YYYY X ", "  X CCCC CCCC X ", "  X OOOO OOOO X ", "  X WWWW WWWW X ", "  X SSSS SSSS X "],
+    ["  S  S  S  S    ", "   GGGGGGGGGG   ", "    RRRRRRRR    ", "     YYYYYY     ", "      CCCC      ", "       OO       ", "       WW       "],
+    ["  GGGGGGGGGGGG  ", "  X          X  ", "  RRRRRRRRRRRR  ", "  X          X  ", "  YYYYYYYYYYYY  ", "  X          X  ", "  CCCCCCCCCCCC  "],
+    ["  WW  OO  CC  YY", "  OO  CC  YY  RR", "  CC  YY  RR  GG", "  YY  RR  GG  WW", "  RR  GG  WW  OO", "  GG  WW  OO  CC", "  SSSSSSSSSSSS  "],
+    ["  X SSSSSSSSSS X", "  X G  R  Y  C X", "  X GG RR YY CCX", "  X GGG R Y CYCX", "  X GG RR YY CCX", "  X G  R  Y  C X", "  X SSSSSSSSSS X"],
+    ["  RRRRRRRRRRRR  ", "  SSSSSSSSSSSS  ", "  YYYYYYYYYYYY  ", "  SSSSSSSSSSSS  ", "  CCCCCCCCCCCC  ", "  SSSSSSSSSSSS  ", "  GGGGGGGGGGGG  "],
+    ["  X          X  ", "  X WWWWWWWW X  ", "  X OOOOOOOO X  ", "  X CCCCCCCC X  ", "  X YYYYYYYY X  ", "  X RRRRRRRR X  ", "  X GGGGGGGG X  "],
+    ["  S S S S S S   ", "  G G G G G G   ", "  R R R R R R   ", "  Y Y Y Y Y Y   ", "  C C C C C C   ", "  O O O O O O   ", "  W W W W W W   "],
+    ["  X GGGGGGGGGG X", "  X R        R X", "  X Y SSSSSSSS X", "  X C S      S X", "  X O S SSSS S X", "  X W S S    S X", "  X   SSSSSSSS X"],
+    ["  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  OOOOOOOOOOOO  ", "  WWWWWWWWWWWW  ", "  SSSSSSSSSSSS  ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  "],
+    ["  X  X  X  X    ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  OOOOOOOOOOOO  ", "  WWWWWWWWWWWW  ", "  SSSSSSSSSSSS  "],
+    ["  S          S  ", "   GGGGGGGGGG   ", "   RRRRRRRRRR   ", "   YYYYYYYYYY   ", "   CCCCCCCCCC   ", "   OOOOOOOOOO   ", "  S          S  "],
+    ["  GGGG    GGGG  ", "  RRRR SSSS RRRR", "  YYYY SSSS YYYY", "  CCCC SSSS CCCC", "  OOOO SSSS OOOO", "  WWWW SSSS WWWW", "  SSSS      SSSS"],
+    ["  X X X X X X   ", "  X X X X X X   ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  SSSSSSSSSSSS  "],
+    ["  SSSSSSSSSSSS  ", "  R R R R R R   ", "  Y Y Y Y Y Y   ", "  C C C C C C   ", "  O O O O O O   ", "  W W W W W W   ", "  SSSSSSSSSSSS  "],
+    ["  X          X  ", "  X GGGGGGGGGG X", "  X RRRRRRRRRR X", "  X SSSSSSSSSS X", "  X YYYYYYYYYY X", "  X CCCCCCCCCC X", "  X OOOOOOOOOO X"],
+    ["  WWWWWWWWWWWW  ", "  GGGGGGGGGGGG  ", "  RRRRRRRRRRRR  ", "  YYYYYYYYYYYY  ", "  CCCCCCCCCCCC  ", "  OOOOOOOOOOOO  ", "  SSSSSSSSSSSS  "],
+    ["  XXXXXXXXXXXX  ", "  X SSSSSSSS X  ", "  X SGGGGGGS X  ", "  X SRRRRRRS X  ", "  X SYYYYYYS X  ", "  X SCCCCCCS X  ", "  XXXXXXXXXXXX  "]
+];
+
+let bricks = [];
+
+function loadLevel(levelIndex) {
+    bricks = [];
+    const map = LEVELS[levelIndex];
+    for(let r = 0; r < map.length; r++) {
+        for(let c = 0; c < map[r].length; c++) {
+            let char = map[r][c];
+            if(char !== ' ') {
+                let typeKey = BLOCK_TYPES[char] ? char : 'W';
+                bricks.push({
+                    x: 16 + c * 14,
+                    y: 16 + r * 7,
+                    w: 13,
+                    h: 6,
+                    type: BLOCK_TYPES[typeKey],
+                    hp: BLOCK_TYPES[typeKey].hp
+                });
+            }
+        }
+    }
+}
+
+// --- CONTROLES DE TECLADO ---
+const keys = {};
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if(e.code === 'Space') triggerAction();
+});
+window.addEventListener('keyup', e => keys[e.code] = false);
+
+// --- CONTROLES TÁCTILES (TABLETA/MÓVIL) ---
+function handleTouchMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const touchX = (touch.clientX - rect.left) * scaleX;
+    
+    // Centra la raqueta en la posición del dedo
+    paddle.x = Math.max(16, Math.min(240 - paddle.w, touchX - paddle.w / 2));
+}
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    triggerAction();
+    handleTouchMove(e);
+}
+
+canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+function triggerAction() {
+    if(ball.attached) {
+        ball.attached = false;
+        ball.vx = (Math.random() - 0.5) * 2;
+        ball.vy = -ball.speed;
+    } else if(paddle.type === 'LASER') {
+        lasers.push({x: paddle.x + 2, y: paddle.y, vy: -4});
+        lasers.push({x: paddle.x + paddle.w - 4, y: paddle.y, vy: -4});
+        playBeep(600, 'square', 0.03);
+    }
+}
+
+function update() {
+    if (keys['ArrowLeft'] && paddle.x > 16) paddle.x -= paddle.speed;
+    if (keys['ArrowRight'] && paddle.x < 240 - paddle.w) paddle.x += paddle.speed;
+
+    if(ball.attached) {
+        ball.x = paddle.x + paddle.w / 2;
+        ball.y = paddle.y - 4;
+        return;
+    }
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    if(ball.x <= 16 || ball.x >= 240) { ball.vx *= -1; playBeep(200); }
+    if(ball.y <= 16) { ball.vy *= -1; playBeep(200); }
+    
+    if(ball.y >= 192) {
+        lives--;
+        playBeep(100, 'sawtooth', 0.3);
+        if(lives <= 0) {
+            alert("GAME OVER\nPuntuación: " + score);
+            document.location.reload();
+        } else {
+            resetBall();
+        }
+    }
+
+    if(ball.y + ball.radius >= paddle.y && 
+       ball.x >= paddle.x && ball.x <= paddle.x + paddle.w && ball.vy > 0) {
+        
+        if(paddle.type === 'CATCH') {
+            ball.attached = true;
+        } else {
+            let hitPoint = (ball.x - (paddle.x + paddle.w/2)) / (paddle.w/2);
+            ball.vx = hitPoint * 2.5;
+            ball.vy = -Math.sqrt(Math.max(0.5, ball.speed * ball.speed - ball.vx * ball.vx));
+            playBeep(300);
+        }
+    }
+
+    for (let i = bricks.length - 1; i >= 0; i--) {
+        let b = bricks[i];
+        if(ball.x + 2 > b.x && ball.x - 2 < b.x + b.w &&
+           ball.y + 2 > b.y && ball.y - 2 < b.y + b.h) {
+            
+            if (!ball.isSuper) {
+                ball.vy *= -1;
+            }
+
+            if(b.type.hp !== Infinity) {
+                b.hp--;
+                if(b.hp <= 0) {
+                    score += b.type.pts;
+                    spawnPowerup(b.x + b.w/2, b.y);
+                    bricks.splice(i, 1);
+                    playBeep(ball.isSuper ? 600 : 440, 'sawtooth', 0.04);
+                } else {
+                    playBeep(150, 'square', 0.03);
+                }
+            } else {
+                playBeep(120, 'square', 0.03);
+            }
+        }
+    }
+
+    lasers.forEach((l, i) => {
+        l.y += l.vy;
+        bricks.forEach((b, bi) => {
+            if(l.x > b.x && l.x < b.x + b.w && l.y > b.y && l.y < b.y + b.h) {
+                if(b.type.hp !== Infinity) {
+                    b.hp--;
+                    if(b.hp <= 0) bricks.splice(bi, 1);
+                }
+                lasers.splice(i, 1);
+            }
+        });
+    });
+
+    powerups.forEach((p, i) => {
+        p.y += 1;
+        if(p.y >= paddle.y && p.x >= paddle.x && p.x <= paddle.x + paddle.w) {
+            applyPowerup(p.type);
+            powerups.splice(i, 1);
+            playBeep(800, 'sine', 0.1);
+        }
+    });
+
+    const destructiblesLeft = bricks.filter(b => b.type.hp !== Infinity).length;
+    if (destructiblesLeft === 0) {
+        currentLevel++;
+        if (currentLevel < LEVELS.length) {
+            playBeep(1000, 'sine', 0.2);
+            loadLevel(currentLevel);
+            resetBall();
+        } else {
+            alert("¡ENHORABUENA! HAS COMPLETADO LOS 32 NIVELES\nPuntuación Final: " + score);
+            document.location.reload();
+        }
+    }
+}
+
+function spawnPowerup(x, y) {
+    if(Math.random() < 0.25) {
+        const types = ['P', 'L', 'E', 'C', 'S'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        powerups.push({x, y, type});
+    }
+}
+
+function applyPowerup(type) {
+    paddle.type = 'NORMAL';
+    paddle.w = 32;
+    ball.speed = 2;
+
+    if(type === 'P') ball.isSuper = true;
+    if(type === 'E') paddle.w = 48;
+    if(type === 'L') paddle.type = 'LASER';
+    if(type === 'C') paddle.type = 'CATCH';
+    if(type === 'S') ball.speed = 1.2;
+}
+
+function resetBall() {
+    ball.attached = true;
+    ball.isSuper = false;
+    paddle.type = 'NORMAL';
+    paddle.w = 32;
+    lasers = [];
+    powerups = [];
+}
+
+function draw() {
+    ctx.fillStyle = PALETTE.BLACK;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = PALETTE.BLUE;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(15, 15, 226, 177);
+
+    bricks.forEach(b => {
+        ctx.fillStyle = b.type.color;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+
+        ctx.fillStyle = b.type.light;
+        ctx.fillRect(b.x, b.y, b.w, 1);
+        ctx.fillRect(b.x, b.y, 1, b.h);
+
+        ctx.fillStyle = b.type.shadow;
+        ctx.fillRect(b.x, b.y + b.h - 1, b.w, 1);
+        ctx.fillRect(b.x + b.w - 1, b.y, 1, b.h);
+    });
+
+    ctx.fillStyle = (paddle.type === 'LASER') ? PALETTE.RED : PALETTE.CYAN;
+    ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+    ctx.fillStyle = ball.isSuper ? 
+        (Math.floor(Date.now() / 100) % 2 === 0 ? PALETTE.BRIGHT_RED : PALETTE.BRIGHT_YELLOW) 
+        : PALETTE.BRIGHT_WHITE;
+        
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.isSuper ? 3.5 : ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = PALETTE.BRIGHT_YELLOW;
+    lasers.forEach(l => ctx.fillRect(l.x, l.y, 2, 4));
+
+    powerups.forEach(p => {
+        ctx.fillStyle = (p.type === 'P') ? PALETTE.BRIGHT_RED : PALETTE.BRIGHT_CYAN;
+        ctx.fillRect(p.x - 4, p.y, 8, 6);
+        ctx.fillStyle = PALETTE.BLACK;
+        ctx.font = '6px monospace';
+        ctx.fillText(p.type, p.x - 2, p.y + 5);
+    });
+
+    ctx.fillStyle = PALETTE.BRIGHT_WHITE;
+    ctx.font = '8px monospace';
+    ctx.fillText(`SCORE:${score}`, 18, 10);
+    ctx.fillText(`LVL:${currentLevel + 1}`, 120, 10);
+    ctx.fillText(`LIVES:${lives}`, 185, 10);
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loadLevel(currentLevel);
+loop();
+</script>
+</body>
+</html>
