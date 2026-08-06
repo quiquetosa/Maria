@@ -24,7 +24,7 @@
     header {
       text-align: center;
       margin-top: 20px;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
     }
 
     h1 {
@@ -41,14 +41,34 @@
       font-weight: bold;
     }
 
+    /* Estilos para las secciones de cada categoría */
+    .section-container {
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 40px;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+      font-size: 28px;
+      color: #2d3436;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid #74b9ff;
+      display: inline-block;
+      text-shadow: 1px 1px 0px #ffffff;
+    }
+
     /* Grid para las tarjetas de los juegos */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 25px;
       width: 100%;
-      max-width: 1000px;
-      padding: 10px;
     }
 
     /* Tarjeta individual de juego */
@@ -117,6 +137,7 @@
     .card-frozen { border-color: #74b9ff; }
     .card-math { border-color: #a29bfe; }
     .card-words { border-color: #ffeaa7; }
+    .card-music { border-color: #ff7675; }
 
     footer {
       margin-top: auto;
@@ -130,60 +151,179 @@
 <body>
 
   <header>
-    <h1>🎮 LOS JUEGOS Y AVENTURAS DE MARÍA 🌟</h1>
-    <p class="subtitle">¡Elige un juego y empieza a aprender jugando!</p>
+    <h1>🎮 MENÚ DE JUEGOS Y AVENTURAS 🌟</h1>
+    <p class="subtitle">¡Elige una sección y empieza a aprender jugando!</p>
   </header>
 
-  <main class="games-grid">
+  <main style="width: 100%; display: flex; flex-direction: column; align-items: center;">
 
-    <!-- EL CASTILLO DE ELSA -->
-    <a href="./castillo-elsa/" class="game-card card-frozen">
-      <div class="card-icon">❄️🏰</div>
-      <div class="card-title">EL CASTILLO DE ELSA</div>
-      <div class="card-description">Responde preguntas y descubre el castillo mágico pieza a pieza.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
+    <!-- SECCIÓN DIANA -->
+    <section class="section-container">
+      <h2 class="section-title">👑 Juegos de Diana</h2>
+      <div class="games-grid">
 
-    <!-- PUZZLE DE COHETE -->
-    <a href="./puzzle-cohete/" class="game-card card-math">
-      <div class="card-icon">🧮 ⭐️</div>
-      <div class="card-title">CONSTRUYE UN COHETE ESPACIAL</div>
-      <div class="card-description">Aprende a sumar, restar, los colores en varios idiomas y las partes del cuerpo en valencià en una carrera super divertida.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
+        <!-- EL CASTILLO DE ELSA -->
+        <a href="./castillo-elsa/" class="game-card card-frozen">
+          <div class="card-icon">❄️🏰</div>
+          <div class="card-title">EL CASTILLO DE ELSA</div>
+          <div class="card-description">Responde preguntas y descubre el castillo mágico pieza a pieza.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
 
-    <!-- LA CARRERA DEL RELOJ -->
-    <a href="./reloj-diario/" class="game-card card-words">
-      <div class="card-icon">🎨 🔤</div>
-      <div class="card-title">LOS MOMENTOS DEL DÍA</div>
-      <div class="card-description">¿Cómo es tu dia a día? Vamos a descubrirlo juntos.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
+        <!-- PUZZLE DE COHETE -->
+        <a href="./puzzle-cohete/" class="game-card card-math">
+          <div class="card-icon">🧮 ⭐️</div>
+          <div class="card-title">CONSTRUYE UN COHETE ESPACIAL</div>
+          <div class="card-description">Aprende a sumar, restar, los colores en varios idiomas y las partes del cuerpo en valencià en una carrera super divertida.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
 
-    <!-- LA FRUTERÍA BILINGÜE -->
-    <a href="./fruteria/" class="game-card card-words">
-      <div class="card-icon">🍌 🍓</div>
-      <div class="card-title">LA FRUTERÍA BILINGÜE</div>
-      <div class="card-description">¿Serás capaz de cumplir con todos tus encargos para estos clientes que hablan en Valenciano e Inglés? Vamos a descubrirlo juntos.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
+        <!-- LA CARRERA DEL RELOJ -->
+        <a href="./reloj-diario/" class="game-card card-words">
+          <div class="card-icon">🎨 🔤</div>
+          <div class="card-title">LOS MOMENTOS DEL DÍA</div>
+          <div class="card-description">¿Cómo es tu dia a día? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
 
-    <!-- LA BATERÍA DE LOS RITMOS -->
-    <a href="./bateria/" class="game-card card-music">
-      <div class="card-icon">🥁 🎶</div>
-      <div class="card-title">LA BATERÍA DE LOS RITMOS</div>
-      <div class="card-description">Escucha los sonidos, memoriza la secuencia y repite el ritmo.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
+        <!-- LA FRUTERÍA BILINGÜE -->
+        <a href="./fruteria/" class="game-card card-words">
+          <div class="card-icon">🍌 🍓</div>
+          <div class="card-title">LA FRUTERÍA BILINGÜE</div>
+          <div class="card-description">¿Serás capaz de cumplir con todos tus encargos para estos clientes que hablan en Valenciano e Inglés? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
 
-    <!-- ArkSpec -->
-    <a href="./ArkSpec/" class="game-card card-music">
-      <div class="card-icon">🕹️ 🕹️</div>
-      <div class="card-title">ArkSpec</div>
-      <div class="card-description">Destruye todos los bloques y disfruta.</div>
-      <div class="btn-play">¡JUGAR! ▶</div>
-    </a>
-    
+        <!-- LA BATERÍA DE LOS RITMOS -->
+        <a href="./bateria/" class="game-card card-music">
+          <div class="card-icon">🥁 🎶</div>
+          <div class="card-title">LA BATERÍA DE LOS RITMOS</div>
+          <div class="card-description">Escucha los sonidos, memoriza la secuencia y repite el ritmo.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- ArkSpec -->
+        <a href="./ArkSpec/" class="game-card card-music">
+          <div class="card-icon">🕹️ 🕹️</div>
+          <div class="card-title">ArkSpec</div>
+          <div class="card-description">Destruye todos los bloques y disfruta.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SECCIÓN MARÍA -->
+    <section class="section-container">
+      <h2 class="section-title">🌸 Juegos de María</h2>
+      <div class="games-grid">
+
+        <!-- EL CASTILLO DE ELSA -->
+        <a href="./castillo-elsa/" class="game-card card-frozen">
+          <div class="card-icon">❄️🏰</div>
+          <div class="card-title">EL CASTILLO DE ELSA</div>
+          <div class="card-description">Responde preguntas y descubre el castillo mágico pieza a pieza.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- PUZZLE DE COHETE -->
+        <a href="./puzzle-cohete/" class="game-card card-math">
+          <div class="card-icon">🧮 ⭐️</div>
+          <div class="card-title">CONSTRUYE UN COHETE ESPACIAL</div>
+          <div class="card-description">Aprende a sumar, restar, los colores en varios idiomas y las partes del cuerpo en valencià en una carrera super divertida.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA CARRERA DEL RELOJ -->
+        <a href="./reloj-diario/" class="game-card card-words">
+          <div class="card-icon">🎨 🔤</div>
+          <div class="card-title">LOS MOMENTOS DEL DÍA</div>
+          <div class="card-description">¿Cómo es tu dia a día? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA FRUTERÍA BILINGÜE -->
+        <a href="./fruteria/" class="game-card card-words">
+          <div class="card-icon">🍌 🍓</div>
+          <div class="card-title">LA FRUTERÍA BILINGÜE</div>
+          <div class="card-description">¿Serás capaz de cumplir con todos tus encargos para estos clientes que hablan en Valenciano e Inglés? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA BATERÍA DE LOS RITMOS -->
+        <a href="./bateria/" class="game-card card-music">
+          <div class="card-icon">🥁 🎶</div>
+          <div class="card-title">LA BATERÍA DE LOS RITMOS</div>
+          <div class="card-description">Escucha los sonidos, memoriza la secuencia y repite el ritmo.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- ArkSpec -->
+        <a href="./ArkSpec/" class="game-card card-music">
+          <div class="card-icon">🕹️ 🕹️</div>
+          <div class="card-title">ArkSpec</div>
+          <div class="card-description">Destruye todos los bloques y disfruta.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SECCIÓN OTROS -->
+    <section class="section-container">
+      <h2 class="section-title">🚀 Otros Juegos</h2>
+      <div class="games-grid">
+
+        <!-- EL CASTILLO DE ELSA -->
+        <a href="./castillo-elsa/" class="game-card card-frozen">
+          <div class="card-icon">❄️🏰</div>
+          <div class="card-title">EL CASTILLO DE ELSA</div>
+          <div class="card-description">Responde preguntas y descubre el castillo mágico pieza a pieza.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- PUZZLE DE COHETE -->
+        <a href="./puzzle-cohete/" class="game-card card-math">
+          <div class="card-icon">🧮 ⭐️</div>
+          <div class="card-title">CONSTRUYE UN COHETE ESPACIAL</div>
+          <div class="card-description">Aprende a sumar, restar, los colores en varios idiomas y las partes del cuerpo en valencià en una carrera super divertida.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA CARRERA DEL RELOJ -->
+        <a href="./reloj-diario/" class="game-card card-words">
+          <div class="card-icon">🎨 🔤</div>
+          <div class="card-title">LOS MOMENTOS DEL DÍA</div>
+          <div class="card-description">¿Cómo es tu dia a día? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA FRUTERÍA BILINGÜE -->
+        <a href="./fruteria/" class="game-card card-words">
+          <div class="card-icon">🍌 🍓</div>
+          <div class="card-title">LA FRUTERÍA BILINGÜE</div>
+          <div class="card-description">¿Serás capaz de cumplir con todos tus encargos para estos clientes que hablan en Valenciano e Inglés? Vamos a descubrirlo juntos.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- LA BATERÍA DE LOS RITMOS -->
+        <a href="./bateria/" class="game-card card-music">
+          <div class="card-icon">🥁 🎶</div>
+          <div class="card-title">LA BATERÍA DE LOS RITMOS</div>
+          <div class="card-description">Escucha los sonidos, memoriza la secuencia y repite el ritmo.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+        <!-- ArkSpec -->
+        <a href="./ArkSpec/" class="game-card card-music">
+          <div class="card-icon">🕹️ 🕹️</div>
+          <div class="card-title">ArkSpec</div>
+          <div class="card-description">Destruye todos los bloques y disfruta.</div>
+          <div class="btn-play">¡JUGAR! ▶</div>
+        </a>
+
+      </div>
+    </section>
 
   </main>
 
