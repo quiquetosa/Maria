@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuentacuentos Mágico ✨ (OpenRouter)</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Caveat:wght@600;700&family=Comic+Neue:wght@400;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================ ESTILOS ============================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;font-family:'Fredoka',system-ui,sans-serif;color:#2b2b3f;
+  background:linear-gradient(180deg,#8ed0ff 0%,#c9ecff 45%,#ffe9f7 100%);
+  min-height:100vh;overflow-x:hidden;
+}
+button{font-family:inherit;cursor:pointer;border:none;touch-action:manipulation;user-select:none}
+.screen{display:none;flex-direction:column;align-items:center;gap:16px;
+  max-width:760px;margin:0 auto;padding:22px 16px 46px;width:100%}
+.screen.active{display:flex;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.app-title{font-size:clamp(1.8rem,6vw,2.6rem);margin:6px 0 0;text-align:center;
+  color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.tagline,.hint{margin:0;text-align:center;color:#4c4c68;font-size:1.05rem;font-weight:600}
+.screen-h{margin:4px 0 0;font-size:1.4rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+.mascot{font-size:3.4rem;animation:bounce 1.6s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.card{background:#fff;border-radius:28px;box-shadow:0 12px 0 rgba(43,43,63,.12);
+  padding:22px;width:100%;display:flex;flex-direction:column;gap:16px}
+.btn{border-radius:999px;padding:16px 26px;font-size:1.2rem;font-weight:700;
+  box-shadow:0 6px 0 rgba(43,43,63,.18);transition:transform .08s;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.93)}
+.btn.primary{background:linear-gradient(135deg,#ff6fa5,#ffb347);color:#fff}
+.btn.secondary{background:#fff;color:#4d96ff;border:3px solid #4d96ff}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.lang-grid{display:grid;gap:14px;width:100%}
+.lang-btn{display:flex;align-items:center;gap:16px;background:#fff;border-radius:24px;
+  padding:16px 20px;font-size:1.3rem;font-weight:700;box-shadow:0 8px 0 rgba(43,43,63,.14);
+  border:4px solid #4d96ff;transition:transform .1s}
+.lang-btn:nth-child(1){border-color:#ff6fa5}
+.lang-btn:nth-child(2){border-color:#ffb347}
+.lang-btn:nth-child(3){border-color:#6bcb77}
+.lang-btn:active{transform:scale(.96)}
+.lang-emoji{font-size:2.2rem}
+.lang-name{flex:1;text-align:left}
+.lang-badge{background:#eaf4ff;border-radius:12px;padding:4px 10px;font-size:.95rem;color:#4d96ff}
+.age-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%}
+.age-btn{font-size:1.6rem;padding:14px 0;border-radius:18px;background:#eaf4ff;
+  border:3px solid transparent;font-weight:700;color:#2b2b3f}
+.age-btn.sel{background:#ffd93d;border-color:#ffb347;transform:scale(1.08)}
+.progress{display:flex;gap:10px}
+.pdot{width:18px;height:18px;border-radius:50%;background:#dfe8f5;border:3px solid #b9c8e0}
+.pdot.done{background:#6bcb77;border-color:#4ca95c}
+.pdot.now{background:#ffd93d;border-color:#ffb347;transform:scale(1.3)}
+.listen-btn{font-size:1.9rem;background:#eaf4ff;border-radius:50%;width:66px;height:66px;
+  box-shadow:0 5px 0 rgba(43,43,63,.15);align-self:center;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.q-text{font-size:1.45rem;text-align:center;margin:0;min-height:2.2em}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{background:#fff;border:3px solid #4d96ff;color:#2b2b3f;border-radius:999px;
+  padding:12px 18px;font-size:1.05rem;font-weight:700}
+.chip.sel{background:#ffd93d;border-color:#ffb347}
+.answer-input{width:100%;border:3px dashed #9b5de5;border-radius:18px;padding:14px;
+  font-size:1.2rem;font-family:inherit;text-align:center;background:#fdf7ff;color:#2b2b3f}
+.answer-input:focus{outline:3px solid rgba(155,93,229,.5)}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.loading-emoji{font-size:4.2rem;animation:bounce 1s infinite}
+.read-top{display:flex;align-items:center;gap:10px;width:100%}
+.icon-btn{font-size:1.5rem;background:#fff;border-radius:50%;width:54px;height:54px;
+  box-shadow:0 5px 0 rgba(43,43,63,.15)}
+#storyTitle{flex:1;text-align:center;font-size:1.45rem;color:#fff;
+  text-shadow:0 2px 0 rgba(0,0,0,.2);margin:0}
+.font-bar{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.85);
+  padding:8px 14px;border-radius:999px;flex-wrap:wrap;justify-content:center}
+.font-label{font-weight:700;color:#4c4c68}
+.font-btn{width:58px;height:58px;border-radius:16px;background:#eaf4ff;font-size:1.25rem;
+  font-weight:800;border:3px solid transparent;color:#2b2b3f}
+.font-btn.active{background:#ffd93d;border-color:#ffb347}
+.f-upper{font-family:'Baloo 2'}
+.f-lower{font-family:'Comic Neue'}
+.f-cursive{font-family:'Caveat';font-size:1.7rem}
+.book{width:100%}
+.illustration{height:210px;border-radius:24px;overflow:hidden;position:relative;
+  background:linear-gradient(180deg,#bde3ff,#e8ffe8);display:flex;align-items:center;
+  justify-content:center;gap:16px;font-size:4.2rem;
+  box-shadow:inset 0 -6px 0 rgba(43,43,63,.08)}
+.illustration img{width:100%;height:100%;object-fit:cover}
+.illustration span{animation:floaty 3s ease-in-out infinite}
+.illustration span:nth-child(2){animation-delay:.4s}
+.illustration span:nth-child(3){animation-delay:.8s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.story-card{background:#fff;border-radius:24px;padding:20px;min-height:180px;
+  box-shadow:0 10px 0 rgba(43,43,63,.12);margin-top:14px;display:flex;align-items:center;justify-content:center}
+.story-text{margin:0;font-size:1.5rem;line-height:1.55;text-align:center}
+.t-upper{font-family:'Baloo 2';text-transform:uppercase;letter-spacing:.5px;font-size:1.3rem}
+.t-lower{font-family:'Comic Neue';font-weight:700}
+.t-cursive{font-family:'Caveat';font-size:2.05rem;line-height:1.4}
+.scene-caption{margin:10px 0 0;text-align:center;color:#8a8aa5;font-size:.95rem;font-style:italic}
+.read-controls{display:flex;gap:18px;align-items:center}
+.nav-btn{width:60px;height:60px;border-radius:50%;background:#4d96ff;color:#fff;
+  font-size:1.6rem;box-shadow:0 6px 0 #2f6fd0}
+.nav-btn[disabled]{opacity:.35;pointer-events:none}
+.play-btn{width:88px;height:88px;border-radius:50%;color:#fff;font-size:1.15rem;font-weight:700;
+  background:linear-gradient(135deg,#6bcb77,#4ca95c);box-shadow:0 7px 0 #35803f;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.play-btn .ico{font-size:1.7rem;line-height:1}
+.page-dots{display:flex;gap:8px}
+.rdot{width:14px;height:14px;border-radius:50%;background:#dfe8f5}
+.rdot.now{background:#ff6fa5;transform:scale(1.35)}
+#pageIndicator{margin:0;font-weight:700;color:#4c4c68}
+.note{background:#fff3cd;border:3px solid #ffb347;border-radius:16px;padding:10px 16px;
+  font-weight:700;text-align:center;max-width:560px}
+.float-decor span{position:fixed;opacity:.5;pointer-events:none;font-size:2.2rem;
+  z-index:-1;animation:drift 9s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-26px) rotate(6deg)}}
+</style>
+</head>
+<body>
+
+<!-- Decoración de fondo -->
+<div class="float-decor" aria-hidden="true">
+  <span style="top:8%;left:6%">☁️</span>
+  <span style="top:14%;right:8%;animation-delay:1.2s">⭐</span>
+  <span style="bottom:12%;left:8%;animation-delay:2s">🎈</span>
+  <span style="bottom:20%;right:10%;animation-delay:.6s">🌈</span>
+  <span style="top:45%;left:3%;animation-delay:1.6s">✨</span>
+</div>
+
+<main>
+  <!-- ========== PANTALLA 0: SELECTOR DE IDIOMA ========== -->
+  <section id="screen-lang" class="screen active">
+    <div class="mascot">🦄</div>
+    <h1 class="app-title">Cuentacuentos Mágico ✨</h1>
+    <p class="tagline">Crea el teu conte · Crea tu cuento · Create your story</p>
+    <h2 class="screen-h">Tria el teu idioma · Elige tu idioma · Choose your language</h2>
+    <div class="lang-grid">
+      <button class="lang-btn" data-lang="ca"><span class="lang-emoji">🍊</span><span class="lang-name">Valencià (Català)</span><span class="lang-badge">CA</span></button>
+      <button class="lang-btn" data-lang="es"><span class="lang-emoji">🌞</span><span class="lang-name">Castellano</span><span class="lang-badge">ES</span></button>
+      <button class="lang-btn" data-lang="en"><span class="lang-emoji">🎡</span><span class="lang-name">English</span><span class="lang-badge">EN</span></button>
+    </div>
+  </section>
+
+  <!-- ========== PASO 1: EDAD ========== -->
+  <section id="screen-age" class="screen">
+    <div class="mascot">🎂</div>
+    <h2 id="ageTitle" class="q-text"></h2>
+    <p id="ageHint" class="hint"></p>
+    <div class="age-grid" id="ageGrid"></div>
+    <div class="row"><button id="btnAgeContinue" class="btn primary"></button></div>
+  </section>
+
+  <!-- ========== PASO 2: CUESTIONARIO (5 preguntas con voz) ========== -->
+  <section id="screen-quiz" class="screen">
+    <div class="progress" id="quizProgress"></div>
+    <div class="card">
+      <button id="btnListenQ" class="listen-btn" title="🔊"></button>
+      <h2 id="quizQ" class="q-text"></h2>
+      <div id="quizOptions" class="chips"></div>
+      <input id="quizInput" class="answer-input" maxlength="60" autocomplete="off">
+      <div class="row">
+        <button id="btnQuizBack" class="btn secondary"></button>
+        <button id="btnQuizNext" class="btn primary"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CARGA (generación IA) ========== -->
+  <section id="screen-loading" class="screen">
+    <div class="loading-emoji">🪄</div>
+    <h2 id="loadTitle" class="q-text"></h2>
+    <p id="loadSub" class="hint"></p>
+  </section>
+
+  <!-- ========== PASO 3: LECTURA DEL CUENTO ========== -->
+  <section id="screen-read" class="screen">
+    <div class="read-top">
+      <button id="btnHome" class="icon-btn" aria-label="Home">🏠</button>
+      <h2 id="storyTitle"></h2>
+      <button id="btnAgain" class="icon-btn" aria-label="Again">🔁</button>
+    </div>
+
+    <!-- Selector de tipografía -->
+    <div class="font-bar">
+      <span class="font-label" id="fontLabel"></span>
+      <button class="font-btn f-upper"   data-font="upper">AA</button>
+      <button class="font-btn f-lower"   data-font="lower">aa</button>
+      <button class="font-btn f-cursive" data-font="cursive">Aa</button>
+    </div>
+
+    <div class="book">
+      <div id="illustration" class="illustration"></div>
+      <div class="story-card"><p id="storyText" class="story-text t-lower"></p></div>
+      <p id="sceneCaption" class="scene-caption"></p>
+    </div>
+
+    <!-- Reproductor de audio + navegación de páginas -->
+    <div class="read-controls">
+      <button id="btnPrev" class="nav-btn" aria-label="prev">⬅</button>
+      <button id="btnPlay" class="play-btn"><span class="ico">▶</span><span class="lbl"></span></button>
+      <button id="btnNext" class="nav-btn" aria-label="next">➜</button>
+    </div>
+    <div class="page-dots" id="pageDots"></div>
+    <p id="pageIndicator"></p>
+    <p id="fallbackNote" class="note" hidden></p>
+    <button id="btnRetryAI" class="btn secondary" hidden>🪄 Reintentar con IA</button>
+  </section>
+</main>
+
+<script>
+/* =====================================================================
+   ⚙️ CONFIGURACIÓN DE OPENROUTER
+===================================================================== */
+const OPENROUTER_API_KEY = "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";
+const OPENROUTER_MODEL   = "auto";
+
+/* ------------------- Diccionarios de interfaz (i18n) ------------------- */
+const I18N = {
+ca:{ tts:"ca-ES", promptLang:"valencià (català)",
+  ageTitle:"Quants anys tens?", ageHint:"Toca el teu número i després continua",
+  continue:"Continuar ➜", back:"⬅ Enrere", questionWord:"Pregunta", ofWord:"de",
+  placeholder:"Escriu la teua resposta ací…", next:"Següent ➜", finish:"Crear el meu conte 🪄",
+  loading:"Creant el teu conte màgic…", loadingSub:"Un momentet, que la màgia està treballant! ✨",
+  pageWord:"Pàgina", fontLabel:"Tipografia:", fontUpper:"Majúscules", fontLower:"Minúscules",
+  fontCursive:"Cursiva", play:"Escoltar", pause:"Pausa",
+  fallbackNote:"⚠️ No hem pogut connectar amb la IA: hem creat un conte senzillet per a tu.",
+  sceneWord:"Escena", endBadge:"FI 🎉", fallbackTitle:"Una aventura màgica",
+  questions:[
+   {q:"Qui serà el protagonista o la protagonista del teu conte?", options:["Una dragona valenta","Un astronauta menut","Una gata curiosa","Un robot amistós"]},
+   {q:"On passarà la història?", options:["Un castell encantat","Un bosc màgic","La Lluna","Un poble vora la mar"]},
+   {q:"Quin objecte màgic trobarà?", options:["Una vareta d'estrelles","Un mapa que brilla","Una flauta màgica","Un llibre que parla"]},
+   {q:"Qui serà el seu company o companya d'aventures?", options:["Un drac menut que escup foc","Un gos que parla","Una fada riallera","Un unicorn de colors"]},
+   {q:"Quin repte haurà de superar?", options:["Trobar un tresor amagat","Rescatar un estel caigut","Desfer un encanteri entremaliat","Guanyar la cursa de la lluna plena"]}]},
+es:{ tts:"es-ES", promptLang:"castellano (español)",
+  ageTitle:"¿Cuántos años tienes?", ageHint:"Toca tu número y después continúa",
+  continue:"Continuar ➜", back:"⬅ Atrás", questionWord:"Pregunta", ofWord:"de",
+  placeholder:"Escribe tu respuesta aquí…", next:"Siguiente ➜", finish:"Crear mi cuento 🪄",
+  loading:"Creando tu cuento mágico…", loadingSub:"¡Un momentito, que la magia está trabajando! ✨",
+  pageWord:"Página", fontLabel:"Tipografía:", fontUpper:"Mayúsculas", fontLower:"Minúsculas",
+  fontCursive:"Cursiva", play:"Escuchar", pause:"Pausa",
+  fallbackNote:"⚠️ No pudimos conectar con la IA: hemos creado un cuentecito sencillo para ti.",
+  sceneWord:"Escena", endBadge:"FIN 🎉", fallbackTitle:"Una aventura mágica",
+  questions:[
+   {q:"¿Quién será el protagonista o la protagonista de tu cuento?", options:["Una dragona valiente","Un astronauta pequeño","Una gata curiosa","Un robot amistoso"]},
+   {q:"¿Dónde pasará la historia?", options:["Un castillo encantado","Un bosque mágico","La Luna","Un pueblo junto al mar"]},
+   {q:"¿Qué objeto mágico encontrará?", options:["Una varita de estrellas","Un mapa que brilla","Una flauta mágica","Un libro que habla"]},
+   {q:"¿Quién será su compañero o compañera de aventuras?", options:["Un dragoncito que escupe fuego","Un perro que habla","Un hada risueña","Un unicornio de colores"]},
+   {q:"¿Qué reto tendrá que superar?", options:["Encontrar un tesoro escondido","Rescatar una estrella caída","Romper un hechizo travieso","Ganar la carrera de la luna llena"]}]},
+en:{ tts:"en-US", promptLang:"English",
+  ageTitle:"How old are you?", ageHint:"Tap your number, then continue",
+  continue:"Continue ➜", back:"⬅ Back", questionWord:"Question", ofWord:"of",
+  placeholder:"Type your answer here…", next:"Next ➜", finish:"Create my story 🪄",
+  loading:"Creating your magic story…", loadingSub:"One moment, magic is working! ✨",
+  pageWord:"Page", fontLabel:"Font:", fontUpper:"Uppercase", fontLower:"Lowercase",
+  fontCursive:"Cursive", play:"Listen", pause:"Pause",
+  fallbackNote:"⚠️ We couldn't reach the AI: we made a simple little story for you.",
+  sceneWord:"Scene", endBadge:"THE END 🎉", fallbackTitle:"A magic adventure",
+  questions:[
+   {q:"Who will the hero of your story be?", options:["A brave dragon","A tiny astronaut","A curious cat","A friendly robot"]},
+   {q:"Where will the story happen?", options:["An enchanted castle","A magic forest","The Moon","A village by the sea"]},
+   {q:"What magic object will they find?", options:["A star wand","A glowing map","A magic flute","A talking book"]},
+   {q:"Who will be their adventure buddy?", options:["A little fire-breathing dragon","A talking dog","A giggly fairy","A rainbow unicorn"]},
+   {q:"What challenge must they overcome?", options:["Find a hidden treasure","Rescue a fallen star","Break a mischievous spell","Win the full-moon race"]}]}
+};
+
+/* ---------------------------- Estado global ---------------------------- */
+const state = { lang:null, age:6, answers:[], story:null, page:0, font:"lower",
+                fallback:false, aiError:null, pageEmojis:[], customImgs:{} };
+const $ = s => document.querySelector(s);
+const T = () => I18N[state.lang];
+const lc = s => (s||"").charAt(0).toLowerCase()+(s||"").slice(1);
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* =====================================================================
+   🔊 WEB SPEECH API (Text-to-Speech)
+===================================================================== */
+const TTS = {
+  supported: "speechSynthesis" in window,
+  voices: [], status: "idle",
+  init(){ if(!this.supported) return;
+    const load = () => { this.voices = speechSynthesis.getVoices(); };
+    load(); speechSynthesis.addEventListener?.("voiceschanged", load); },
+  voiceFor(lang){ const base = lang.slice(0,2);
+    return this.voices.find(v=>v.lang.replace("_","-")===lang)
+        || this.voices.find(v=>v.lang.replace("_","-").startsWith(base)) || null; },
+  say(text, onend){ if(!this.supported){ onend&&onend(); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = T().tts;
+    const v = this.voiceFor(u.lang); if(v) u.voice = v;
+    u.rate = 0.95; u.pitch = 1.15;
+    u.onend = u.onerror = () => { this.status="idle"; onend&&onend(); };
+    this.status = "playing"; speechSynthesis.speak(u); },
+  pause(){ if(this.supported && this.status==="playing"){ speechSynthesis.pause(); this.status="paused"; } },
+  resume(){ if(this.supported && this.status==="paused"){ speechSynthesis.resume(); this.status="playing"; } },
+  stop(){ if(this.supported) speechSynthesis.cancel(); this.status="idle"; }
+};
+TTS.init();
+
+/* ------------------------- Navegación de pantallas ------------------------- */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(el=>el.classList.remove("active"));
+  $("#"+id).classList.add("active");
+  TTS.stop(); updatePlayBtn();
+}
+
+/* ============================ PANTALLA: IDIOMA ============================ */
+document.querySelectorAll(".lang-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    state.lang = btn.dataset.lang;
+    document.documentElement.lang = state.lang==="ca" ? "ca" : state.lang;
+    showAge();
+  });
+});
+
+/* ============================ PASO 1: EDAD ============================ */
+function showAge(){
+  const t=T();
+  $("#ageTitle").textContent = t.ageTitle;
+  $("#ageHint").textContent  = t.ageHint;
+  $("#btnAgeContinue").textContent = t.continue;
+  const grid=$("#ageGrid"); grid.innerHTML="";
+  for(let n=3;n<=10;n++){
+    const b=document.createElement("button");
+    b.className="age-btn"+(n===state.age?" sel":""); b.textContent=n;
+    b.onclick=()=>{ state.age=n; grid.querySelectorAll(".age-btn").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); };
+    grid.appendChild(b);
+  }
+  showScreen("screen-age");
+  TTS.say(t.ageTitle);
+}
+$("#btnAgeContinue").addEventListener("click", ()=>showQuiz(0));
+
+/* ==================== PASO 2: CUESTIONARIO CON VOZ ==================== */
+let qIndex = 0;
+function showQuiz(i){
+  qIndex=i; const t=T(), q=t.questions[i];
+  $("#quizProgress").innerHTML = t.questions.map((_,k)=>
+    `<div class="pdot ${k<i?"done":k===i?"now":""}"></div>`).join("");
+  $("#quizQ").textContent = q.q;
+  $("#quizInput").placeholder = t.placeholder;
+  $("#quizInput").value = state.answers[i]||"";
+  $("#btnQuizBack").textContent = t.back;
+  $("#btnQuizNext").textContent = i<4 ? t.next : t.finish;
+  const box=$("#quizOptions"); box.innerHTML="";
+  q.options.forEach(op=>{
+    const c=document.createElement("button"); c.className="chip"; c.textContent=op;
+    if(state.answers[i]===op) c.classList.add("sel");
+    c.onclick=()=>{ $("#quizInput").value=op;
+      box.querySelectorAll(".chip").forEach(x=>x.classList.remove("sel")); c.classList.add("sel"); };
+    box.appendChild(c);
+  });
+  showScreen("screen-quiz");
+  TTS.say(q.q);
+}
+$("#btnListenQ").addEventListener("click", ()=>TTS.say(T().questions[qIndex].q));
+$("#btnQuizBack").addEventListener("click", ()=> qIndex>0 ? showQuiz(qIndex-1) : showAge());
+$("#btnQuizNext").addEventListener("click", nextQuestion);
+$("#quizInput").addEventListener("keydown", e=>{ if(e.key==="Enter") nextQuestion(); });
+function nextQuestion(){
+  const val=$("#quizInput").value.trim();
+  if(!val){ const inp=$("#quizInput"); inp.classList.add("shake");
+            setTimeout(()=>inp.classList.remove("shake"),450); return; }
+  state.answers[qIndex]=val;
+  qIndex<4 ? showQuiz(qIndex+1) : generateStory();
+}
+
+/* =====================================================================
+   🤖 GENERACIÓN ADAPTATIVA DEL CUENTO SEGÚN EDAD
+===================================================================== */
+function buildPrompt(){
+  const t = T(), a = state.answers, age = state.age;
+  
+  let pageCount = 3;
+  let linesPerPage = "3 a 4 frases";
+
+  if (age <= 5) {
+    pageCount = 4;
+    linesPerPage = "exactamente 4 a 5 frases sencillas";
+  } else if (age <= 7) {
+    pageCount = 4;
+    linesPerPage = "de 6 a 8 frases descriptivas";
+  } else {
+    pageCount = 6;
+    linesPerPage = "de 8 a 10 frases largas y desarrolladas con buen vocabulario";
+  }
+
+  return `Eres un cuentacuentos infantil experto. Escribe un cuento dulce, mágico y muy entretenido en ${t.promptLang}, adaptado para un niño o niña de ${age} años.
+Elementos obligatorios:
+- Protagonista: ${a[0]} | Lugar: ${a[1]} | Objeto mágico: ${a[2]} | Compañero/a: ${a[3]} | Desafío: ${a[4]}
+
+REQUISITOS DE ESTRUCTURA Y EXTENSIÓN:
+- Número de páginas: exactamente ${pageCount} páginas.
+- Extensión por página: cada página debe contener ${linesPerPage}.
+
+Devuelve ÚNICAMENTE un JSON válido, sin formato markdown (\`\`\`json) ni texto adicional:
+{"title":"título corto","pages":[{"text":"texto de la página","illustration":"descripción breve de la escena para ilustrarla"}]}`;
+}
+
+function parseStoryJSON(raw){
+  const clean = String(raw).replace(/```json|```/g,"").trim();
+  const obj = JSON.parse(clean.slice(clean.indexOf("{"), clean.lastIndexOf("}")+1));
+  let pages = (obj.pages||[]).map(p=>({text:String(p.text||""),illustration:String(p.illustration||"")})).filter(p=>p.text);
+  if(!pages.length) throw new Error("La IA no devolvió páginas");
+  return {title:String(obj.title||"✨"), pages:pages};
+}
+
+async function listFreeModels(){
+  const res = await fetch("https://openrouter.ai/api/v1/models");
+  if(!res.ok) throw new Error("No pude listar los modelos (HTTP "+res.status+")");
+  const data = await res.json();
+  const prefs = ["llama","mistral","gemma","qwen","deepseek"];
+  const score = m => { let s=0; prefs.forEach((p,i)=>{ if(m.id.toLowerCase().includes(p)) s += 100-i*10; }); return s; };
+  const ids = (data.data||[])
+    .filter(m => m.id.endsWith(":free"))
+    .filter(m => (m.architecture?.output_modalities||[]).includes("text"))
+    .sort((a,b)=> score(b)-score(a))
+    .slice(0,6)
+    .map(m=>m.id);
+  if(!ids.length) throw new Error("No encontré modelos gratuitos disponibles");
+  return ids;
+}
+
+async function openRouterGenerate(model, prompt){
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+OPENROUTER_API_KEY.trim(),
+              "Content-Type":"application/json" },
+    body:JSON.stringify({ model, temperature:0.9,
+      messages:[{role:"user", content:prompt}] })
+  });
+  if(!res.ok){
+    let msg="HTTP "+res.status;
+    try{ const err=await res.json(); if(err.error?.message) msg=err.error.message; }catch(_){}
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || "Error de OpenRouter");
+  const raw = data.choices?.[0]?.message?.content;
+  if(!raw) throw new Error("OpenRouter no devolvió texto");
+  return parseStoryJSON(raw);
+}
+
+async function callOpenRouter(prompt){
+  const models = (OPENROUTER_MODEL==="auto") ? await listFreeModels() : [OPENROUTER_MODEL];
+  let lastErr;
+  for(const model of models){
+    try{ return await openRouterGenerate(model, prompt); }
+    catch(e){
+      lastErr = e;
+      if(/not found|does not exist|invalid model|no endpoints/i.test(String(e.message||e))) continue;
+      throw e;
+    }
+  }
+  throw lastErr || new Error("Ningún modelo gratuito funcionó");
+}
+
+async function generateStory(){
+  const t=T();
+  $("#loadTitle").textContent=t.loading; $("#loadSub").textContent=t.loadingSub;
+  showScreen("screen-loading"); TTS.say(t.loading);
+  let story=null, fallback=false, aiError=null;
+  if(OPENROUTER_API_KEY.trim()){
+    try{ story = await callOpenRouter(buildPrompt()); }
+    catch(e){ console.error("OpenRouter:", e); aiError=e.message; fallback=true; }
+  } else {
+    aiError = "OPENROUTER_API_KEY está vacía en el código.";
+    fallback = true;
+  }
+  if(!story){ story = buildFallbackStory(); fallback=true; }
+  state.story=story; state.fallback=fallback; state.aiError=aiError;
+  state.customImgs={};
+  computeEmojis(); showRead();
+}
+
+/* Cuento de reserva adaptado por edades */
+function buildFallbackStory(){
+  const [p,l,o,c,r] = state.answers;
+  const age = state.age;
+  let pages = [];
+
+  const lP = lc(p), lL = lc(l), lO = lc(o), lC = lc(c), lR = lc(r);
+
+  if (age <= 5) {
+    pages = [
+      {text: `Había una vez ${lP} que vivía felizmente en ${lL}. Un día despejado, mientras paseaba alegremente, encontró un misterioso objeto: ${lO}. Todo el lugar comenzó a brillar con destellos mágicos.`, illustration: `${p} en ${lL} con ${o}`},
+      {text: `De repente apareció su gran amigo ${lC} dando saltos de alegría. Juntos observaron cómo ${lO} emitía una suave luz dorada. Decidieron emprender un viaje lleno de sorpresas.`, illustration: `${c} y ${p} observando ${o}`},
+      {text: `Pronto se encontraron con un gran reto: debían ${lR}. Al principio sintieron un poco de miedo, pero abrazándose fuerte recordaron lo valientes que eran juntos.`, illustration: `${p} y ${c} frente al desafío`},
+      {text: `Usando la energía brillante de ${lO}, lograron ${lR} sin problemas. Todo ${lL} celebró su gran hazaña con música y globos. Y colorín colorado, este cuento se ha acabado.`, illustration: `Gran fiesta en ${lL}`}
+    ];
+  } else {
+    pages = [
+      {text: `En lo más profundo de ${lL}, vivía ${lP}, conocido por todos por su enorme curiosidad. Siempre soñaba con vivir grandes aventuras más allá del horizonte. Un día, escondido entre la maleza, descubrió ${lO}, un artefacto legendario que irradiaba una energía muy especial.`, illustration: `${p} encuentra ${o} en ${lL}`},
+      {text: `Sin dudarlo un segundo, ${lP} corrió a buscar a su inseparable compañero ${lC}. Juntos examinaron los intrincados grabados de ${lO}, los cuales comenzaron a brillar iluminando todo el camino. Sabían que una gran misión estaba a punto de comenzar.`, illustration: `${p} y ${c} examinando ${o}`},
+      {text: `El mapa de luz los guio hacia el centro de ${lL}, donde el mayor obstáculo les esperaba: era momento de ${lR}. El ambiente se volvió desafiante, pero la determinación de ambos amigos era indestructible.`, illustration: `El viaje hacia ${lR}`},
+      {text: `Combinando la astucia de ${lP}, la lealtad de ${lC} y el poder de ${lO}, trazaron un plan perfecto. Paso a paso, enfrentaron cada dificultad hasta lograr superarla por completo.`, illustration: `${p} y ${c} trabajando juntos`},
+      {text: `¡Lo consiguieron con éxito! Al lograr ${lR}, la paz y la alegría volvieron a reinar en cada rincón. Todos los habitantes salieron a aclamar a los pequeños héroes.`, illustration: `Celebración del éxito`},
+      {text: `Para festejar la gran victoria, organizaron una fiesta inolvidable en ${lL}. Prometieron cuidar siempre de ${lO} y estar listos para la próxima aventura. Y así, vivieron muy felices.`, illustration: `Gran fiesta final con ${p} y ${c}`}
+    ];
+  }
+
+  return {title: T().fallbackTitle, pages};
+}
+
+/* ------------------- Emojis decorativos dinámicos ------------------- */
+const EMOJI_KEYS=[["drac","🐉"],["drag","🐉"],["astronaut","🚀"],["robot","🤖"],
+ ["gat","🐱"],["cat","🐱"],["gos","🐶"],["perro","🐶"],["dog","🐶"],["fada","🧚"],["hada","🧚"],["fairy","🧚"],
+ ["unicorn","🦄"],["castell","🏰"],["castillo","🏰"],["castle","🏰"],["bosc","🌳"],["bosque","🌳"],["forest","🌳"],
+ ["lluna","🌙"],["luna","🌙"],["moon","🌙"],["mar","🌊"],["sea","🌊"],["poble","🏘️"],["pueblo","🏘️"],["village","🏘️"],
+ ["vareta","🪄"],["varita","🪄"],["wand","🪄"],["mapa","🗺️"],["map","🗺️"],["flauta","🎵"],["flute","🎵"],
+ ["llibre","📖"],["libro","📖"],["book","📖"],["tresor","💰"],["tesoro","💰"],["treasure","💰"],
+ ["estel","⭐"],["estrella","⭐"],["star","⭐"],["encanteri","✨"],["hechizo","✨"],["spell","✨"],
+ ["cursa","🏁"],["carrera","🏁"],["race","🏁"]];
+
+function emojiFor(text){ const low=(text||"").toLowerCase();
+  for(const [k,e] of EMOJI_KEYS) if(low.includes(k)) return e; return "✨"; }
+
+function computeEmojis(){ 
+  const a = state.answers;
+  const total = state.story ? state.story.pages.length : 4;
+  state.pageEmojis = [];
+  
+  for(let i = 0; i < total; i++){
+    if(i === 0) state.pageEmojis.push([emojiFor(a[0]), emojiFor(a[1]), "🌈"]);
+    else if(i === total - 1) state.pageEmojis.push([emojiFor(a[4]), "🎉", "❤️"]);
+    else state.pageEmojis.push([emojiFor(a[3]), emojiFor(a[2]), "🌟"]);
+  }
+}
+
+/* =====================================================================
+   📖 PANTALLA DE LECTURA DINÁMICA
+===================================================================== */
+function showRead(){
+  const t = T();
+  state.page = 0;
+  $("#storyTitle").textContent = "📖 " + state.story.title;
+  $("#fontLabel").textContent = t.fontLabel;
+  document.querySelector('[data-font="upper"]').title = t.fontUpper;
+  document.querySelector('[data-font="lower"]').title = t.fontLower;
+  document.querySelector('[data-font="cursive"]').title = t.fontCursive;
+  
+  const note = $("#fallbackNote");
+  if(state.fallback){
+    note.hidden = false;
+    note.innerHTML = t.fallbackNote +
+      (state.aiError ? `<br><small style="font-weight:400">🔎 Motivo: ${escapeHtml(state.aiError)}</small>` : "");
+    $("#btnRetryAI").hidden = false;
+  } else { note.hidden = true; $("#btnRetryAI").hidden = true; }
+  
+  applyFont(state.font);
+  showScreen("screen-read");
+  renderPage();
+}
+
+function renderPage(){
+  const t = T(), total = state.story.pages.length, pg = state.story.pages[state.page], box = $("#illustration");
+  
+  if(state.customImgs[state.page])
+    box.innerHTML = `<img src="${state.customImgs[state.page]}" alt="ilustración">`;
+  else
+    box.innerHTML = (state.pageEmojis[state.page] || ["✨","⭐","🎈"]).map(e => `<span>${e}</span>`).join("");
+    
+  $("#storyText").textContent = pg.text;
+  $("#sceneCaption").textContent = pg.illustration ? `${t.sceneWord}: ${pg.illustration}` : "";
+  
+  $("#pageIndicator").textContent = `${t.pageWord} ${state.page + 1} ${t.ofWord} ${total}` +
+                                  (state.page === total - 1 ? `  ·  ${t.endBadge}` : "");
+                                  
+  $("#pageDots").innerHTML = Array.from({length: total}, (_, k) => 
+    `<div class="rdot ${k === state.page ? "now" : ""}"></div>`
+  ).join("");
+  
+  $("#btnPrev").disabled = state.page === 0;
+  $("#btnNext").disabled = state.page === total - 1;
+  
+  TTS.stop(); 
+  updatePlayBtn();
+}
+
+$("#btnPrev").onclick = () => { if(state.page > 0){ state.page--; renderPage(); } };
+$("#btnNext").onclick = () => { if(state.page < state.story.pages.length - 1){ state.page++; renderPage(); } };
+$("#btnAgain").addEventListener("click", generateStory);
+$("#btnRetryAI").addEventListener("click", generateStory);
+$("#btnHome").addEventListener("click", ()=>{ state.answers=[]; state.story=null; showScreen("screen-lang"); });
+
+/* Selector de tipografía */
+function applyFont(f){ state.font=f;
+  $("#storyText").className="story-text t-"+f;
+  document.querySelectorAll(".font-btn").forEach(b=>b.classList.toggle("active",b.dataset.font===f)); }
+document.querySelectorAll(".font-btn").forEach(b=>b.addEventListener("click",()=>applyFont(b.dataset.font)));
+
+/* Reproductor de audio Play/Pausa */
+function updatePlayBtn(){ const t=state.lang?T():null, btn=$("#btnPlay");
+  btn.querySelector(".ico").textContent = TTS.status==="playing" ? "⏸" : "▶";
+  btn.querySelector(".lbl").textContent = t ? (TTS.status==="playing"?t.pause:t.play) : ""; }
+$("#btnPlay").addEventListener("click", ()=>{
+  if(!TTS.supported) return;
+  if(TTS.status==="playing")      TTS.pause();
+  else if(TTS.status==="paused")  TTS.resume();
+  else TTS.say(state.story.pages[state.page].text, updatePlayBtn);
+  updatePlayBtn();
+});
+
+/* Gancho para ilustraciones */
+function setIllustration(pageIndex, imageUrl){
+  state.customImgs[pageIndex]=imageUrl;
+  if(state.page===pageIndex && $("#screen-read").classList.contains("active")) renderPage();
+}
+window.setIllustration = setIllustration;
+</script>
+</body>
+</html>
