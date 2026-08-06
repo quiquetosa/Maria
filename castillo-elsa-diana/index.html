@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EL CASTILLO DE ELSA - DESAFÍO 10 AÑOS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e1b4b 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      color: #fff;
+    }
+
+    h1 {
+      color: #e0f2fe;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      margin-bottom: 15px;
+      font-size: clamp(20px, 4vw, 30px);
+      text-align: center;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 1000px;
+      height: 82vh;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
+      overflow: hidden;
+      border: 3px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .castle-section {
+      width: 45%;
+      background-image: url('https://i.pinimg.com/474x/c0/e8/e4/c0e8e443dde464e9bd158ad37cdb524d.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-right: 3px solid rgba(56, 189, 248, 0.4);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .castle-block {
+      flex: 1;
+      width: 100%;
+      background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+      border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+      opacity: 1;
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    .castle-block.revealed {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.08);
+    }
+
+    .game-section {
+      width: 55%;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .header-game {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    #category-tag {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+    }
+
+    #score-tag {
+      color: #facc15;
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    .question-box {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f8fafc;
+      padding: 20px;
+      border-radius: 20px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-option {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: #f1f5f9;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 65px;
+      text-align: center;
+    }
+
+    .btn-option:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .btn-option:active {
+      transform: translateY(1px);
+    }
+
+    .btn-option.correct {
+      background: linear-gradient(135deg, #16a34a, #15803d) !important;
+      border-color: #4ade80 !important;
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.4) !important;
+      color: #ffffff !important;
+    }
+
+    .btn-option.wrong {
+      background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+      border-color: #f87171 !important;
+      box-shadow: 0 0 15px rgba(248, 113, 113, 0.4) !important;
+      color: #ffffff !important;
+    }
+
+    .feedback {
+      font-size: 17px;
+      font-weight: bold;
+      height: 25px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .correct-text { color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
+    .wrong-text { color: #f87171; text-shadow: 0 0 8px rgba(248, 113, 113, 0.4); }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #facc15, #eab308);
+      color: #0f172a;
+      border: none;
+      padding: 16px 32px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(250, 204, 21, 0.3);
+      display: none;
+      margin-top: 15px;
+      transition: transform 0.2s;
+      text-transform: uppercase;
+    }
+
+    .btn-restart:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+      }
+      .castle-section, .game-section {
+        width: 100%;
+      }
+      .castle-section {
+        height: 35vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>❄️ DESCUBRE EL CASTILLO DE ELSA ❄️</h1>
+
+  <div class="container">
+    <div class="castle-section" id="castle">
+      <div class="castle-block" id="block-10"></div>
+      <div class="castle-block" id="block-9"></div>
+      <div class="castle-block" id="block-8"></div>
+      <div class="castle-block" id="block-7"></div>
+      <div class="castle-block" id="block-6"></div>
+      <div class="castle-block" id="block-5"></div>
+      <div class="castle-block" id="block-4"></div>
+      <div class="castle-block" id="block-3"></div>
+      <div class="castle-block" id="block-2"></div>
+      <div class="castle-block" id="block-1"></div>
+    </div>
+
+    <div class="game-section">
+      <div class="header-game">
+        <span id="category-tag">MATERIA</span>
+        <span id="score-tag">ACIERTO: 0 / 10</span>
+      </div>
+
+      <div class="question-box" id="question">
+        CARGANDO PREGUNTA...
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="options-grid" id="options"></div>
+
+      <button class="btn-restart" id="btn-restart" onclick="startGame()">¡JUGAR DE NUEVO! 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    // BATERÍA COMPLETA DE PREGUNTAS (NIVEL 4º-5º PRIMARIA / 10 AÑOS)
+    const questionBank = [
+      // MATEMÁTICAS
+      { cat: "MATEMÁTICAS", q: "¿Cuál es el resultado de (8 × 7) - 16?", opts: ["40", "44", "48"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿Cuál es el perímetro de un cuadrado de 9 cm de lado?", opts: ["36 cm", "81 cm", "27 cm"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿Cuál es el resultado de 144 ÷ 12?", opts: ["12", "14", "10"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿Cuál es el 25% de 200?", opts: ["50", "25", "100"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿Cuál de estos números es un múltiplo de 9?", opts: ["63", "58", "74"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "¿Cuántos minutos hay en 3 horas y media?", opts: ["210 minutos", "180 minutos", "200 minutos"], ans: 0 },
+      { cat: "MATEMÁTICAS", q: "Un ángulo de 90 grados es un ángulo...", opts: ["Recto", "Agudo", "Obtuso"], ans: 0 },
+
+      // INGLÉS (5º PRIMARIA)
+      { cat: "INGLÉS", q: "What is the past tense of the verb 'GO'?", opts: ["WENT", "GOED", "GONE"], ans: 0 },
+      { cat: "INGLÉS", q: "Which word means 'MEDIO AMBIENTE' in English?", opts: ["ENVIRONMENT", "POLLUTION", "WEATHER"], ans: 0 },
+      { cat: "INGLÉS", q: "Choose the correct sentence:", opts: ["She is taller than her brother", "She is more tall than her brother", "She is tallest than her brother"], ans: 0 },
+      { cat: "INGLÉS", q: "What is the English word for 'DESAFÍO'?", opts: ["CHALLENGE", "SUCCESS", "KNOWLEDGE"], ans: 0 },
+      { cat: "INGLÉS", q: "What is the plural of 'CHILD'?", opts: ["CHILDREN", "CHILDS", "CHILDES"], ans: 0 },
+      { cat: "INGLÉS", q: "Which word means 'DESCUBRIMIENTO'?", opts: ["DISCOVERY", "DEVELOPMENT", "DIRECTION"], ans: 0 },
+
+      // CIÈNCIES NATURALS (VALENCIÀ)
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Quin òrgan del cos humà se encarrega de bombar la sang?", opts: ["El cor", "El cervell", "Els pulmons"], ans: 0 },
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Els animals que tenen columna vertebral es diuen...", opts: ["Vertebrats", "Invertebrats", "Artòpods"], ans: 0 },
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Quin d'aquests òrgans pertany al sistema digestiu?", opts: ["L'estómac", "Les artèries", "Els pulmons"], ans: 0 },
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Com es diu el procés pel qual les plantes fabriquen el seu propi aliment?", opts: ["Fotosíntesi", "Respiració", "Germinació"], ans: 0 },
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Quin dels següents és un estat de la matèria?", opts: ["Líquid", "Calor", "Energia"], ans: 0 },
+      { cat: "VALENCIÀ / CIÈNCIES", q: "Quin d'aquests òrgans ens permet extreure l'oxigen de l'aire?", opts: ["Els pulmons", "El cervell", "L'intestí"], ans: 0 },
+
+      // LENGUA Y SOCIALES
+      { cat: "LENGUA CASTELLANA", q: "¿Qué tipo de palabra es 'CÁMARA' según su acentuación?", opts: ["Esdrújula", "Aguda", "Llana"], ans: 0 },
+      { cat: "LENGUA CASTELLANA", q: "En la oración 'El perro blanco corre rápido', ¿cuál es el adjetivo?", opts: ["Blanco", "Corre", "Perro"], ans: 0 },
+      { cat: "CIENCIAS SOCIALES", q: "¿Cuál es el río más largo de la Península Ibérica?", opts: ["Tajo", "Ebro", "Duero"], ans: 0 },
+      { cat: "LENGUA CASTELLANA", q: "¿Cuál es el sinónimo de la palabra 'EFÍMERO'?", opts: ["Pasajero / Breve", "Eterno", "Fuerte"], ans: 0 },
+      { cat: "CIENCIAS SOCIALES", q: "¿En qué continente se encuentra la cordillera de los Himalayas?", opts: ["Asia", "América", "Europa"], ans: 0 }
+    ];
+
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledOptions = [];
+    let correctShuffledIndex = -1;
+
+    function startGame() {
+      const blocks = document.querySelectorAll('.castle-block');
+      blocks.forEach(block => block.classList.remove('revealed'));
+
+      selectedQuestions = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, 10);
+      
+      currentQuestionIndex = 0;
+      score = 0;
+
+      document.getElementById('btn-restart').style.display = 'none';
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('question').style.display = 'flex';
+      updateScoreUI();
+      loadQuestion();
+    }
+
+    function shuffleOptions(opts, correctIndex) {
+      const correctText = opts[correctIndex];
+      shuffledOptions = [...opts].sort(() => 0.5 - Math.random());
+      correctShuffledIndex = shuffledOptions.indexOf(correctText);
+    }
+
+    function loadQuestion() {
+      document.getElementById('feedback').innerText = '';
+      const qData = selectedQuestions[currentQuestionIndex];
+      
+      shuffleOptions(qData.opts, qData.ans);
+      
+      document.getElementById('category-tag').innerText = qData.cat;
+      document.getElementById('question').innerText = qData.q;
+
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+
+      shuffledOptions.forEach((optionText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = optionText;
+        btn.onclick = (e) => checkAnswer(index, e.target);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIndex, clickedBtn) {
+      const feedbackEl = document.getElementById('feedback');
+      
+      if (selectedIndex === correctShuffledIndex) {
+        score++;
+        clickedBtn.classList.add('correct');
+        
+        feedbackEl.className = "feedback correct-text";
+        feedbackEl.innerText = "¡EXCELENTE! 🌟 BLOQUE REVELADO";
+        
+        document.getElementById(`block-${score}`).classList.add('revealed');
+        
+        updateScoreUI();
+        disableButtons();
+
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < 10) {
+            loadQuestion();
+          } else {
+            endGame();
+          }
+        }, 1400);
+
+      } else {
+        clickedBtn.classList.add('wrong');
+        feedbackEl.className = "feedback wrong-text";
+        feedbackEl.innerText = "¡INTÉNTALO DE NUEVO! 💪";
+        
+        setTimeout(() => {
+          clickedBtn.classList.remove('wrong');
+          feedbackEl.innerText = '';
+        }, 1000);
+      }
+    }
+
+    function disableButtons() {
+      const btns = document.querySelectorAll('.btn-option');
+      btns.forEach(btn => btn.disabled = true);
+    }
+
+    function updateScoreUI() {
+      document.getElementById('score-tag').innerText = `ACIERTO: ${score} / 10`;
+    }
+
+    function endGame() {
+      document.getElementById('question').style.display = "none";
+      document.getElementById('options').innerHTML = "<div style='text-align:center; color:#e0f2fe; font-size:22px; font-weight:bold; line-height:1.5;'>🎉 ¡ENHORABUENA! <br>¡HAS DEMOSTRADO TUS CONOCIMIENTOS Y REVELADO EL CASTILLO DE ELSA! ❄️👑</div>";
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('btn-restart').style.display = 'block';
+    }
+
+    document.addEventListener("DOMContentLoaded", startGame);
+  </script>
+</body>
+</html>
