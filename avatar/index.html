@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Avatares Mágicos 🦄</title>
+    <style>
+        :root {
+            --primary: #a855f7;
+            --primary-light: #f3e8ff;
+            --secondary: #ec4899;
+            --bg-color: #faf5ff;
+            --card-bg: #ffffff;
+            --text-color: #4c1d95;
+            --border-radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header { text-align: center; margin-bottom: 15px; }
+        header h1 { font-size: 2rem; color: var(--primary); }
+
+        .app-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            max-width: 1050px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.15);
+        }
+
+        .preview-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-card {
+            width: 320px;
+            height: 420px;
+            border-radius: var(--border-radius);
+            position: relative;
+            overflow: hidden;
+            border: 4px solid var(--primary-light);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            background: #e0f2fe;
+        }
+
+        .avatar-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* JERARQUÍA DE CAPAS */
+        #layer-bg { z-index: 1; }
+        #layer-wings { z-index: 2; }
+        #layer-hair-back { z-index: 3; }
+        #layer-body { z-index: 4; }
+        #layer-face-details { z-index: 5; }
+        #layer-eyes { z-index: 6; }
+        #layer-clothes { z-index: 7; }
+        #layer-hair-front { z-index: 8; }
+        #layer-glasses { z-index: 9; }
+        #layer-hat { z-index: 10; }
+        #layer-hand-item { z-index: 11; }
+
+        .character-name-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            border: 2px solid var(--primary-light);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.2s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:active { transform: scale(0.96); }
+        .btn-random { background: #10b981; }
+        .btn-download { background: var(--secondary); }
+
+        .controls-column {
+            flex: 1.4;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gender-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            background: var(--primary-light);
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        .gender-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        .options-panel {
+            flex: 1;
+            background: #faf5ff;
+            border-radius: 15px;
+            padding: 12px;
+            min-height: 330px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            max-height: 360px;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 8px 0 4px;
+            color: var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid var(--primary-light);
+            border-radius: 10px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.82rem;
+            text-align: center;
+            padding: 4px;
+            font-weight: bold;
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3);
+        }
+
+        .color-picker-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 2px dashed var(--primary-light);
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .color-picker-box input[type="color"] {
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: none;
+        }
+
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; align-items: center; }
+            .controls-column { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>✨ Creador de Avatares Mágicos ✨</h1>
+    </header>
+
+    <main class="app-container">
+        
+        <section class="preview-column">
+            <div class="avatar-card" id="avatar-preview">
+                <div class="avatar-layer" id="layer-bg"></div>
+                <div class="avatar-layer" id="layer-wings"></div>
+                <div class="avatar-layer" id="layer-hair-back"></div>
+                <div class="avatar-layer" id="layer-body"></div>
+                <div class="avatar-layer" id="layer-face-details"></div>
+                <div class="avatar-layer" id="layer-eyes"></div>
+                <div class="avatar-layer" id="layer-clothes"></div>
+                <div class="avatar-layer" id="layer-hair-front"></div>
+                <div class="avatar-layer" id="layer-glasses"></div>
+                <div class="avatar-layer" id="layer-hat"></div>
+                <div class="avatar-layer" id="layer-hand-item"></div>
+            </div>
+
+            <input type="text" id="avatar-name" class="character-name-input" placeholder="Nombre del avatar..." maxlength="20">
+
+            <div class="action-buttons">
+                <button class="action-btn btn-random" onclick="randomizeAvatar()">🎲 Aleatorio</button>
+                <button class="action-btn btn-download" onclick="downloadPNG()">💾 Guardar PNG</button>
+            </div>
+        </section>
+
+        <section class="controls-column">
+            
+            <div class="gender-selector">
+                <button class="gender-btn active" id="btn-girl" onclick="setGender('girl')">👧 Chica</button>
+                <button class="gender-btn" id="btn-boy" onclick="setGender('boy')">👦 Chico</button>
+            </div>
+
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('tab-cuerpo', this)">👤 Cuerpo</button>
+                <button class="tab-btn" onclick="switchTab('tab-ojos', this)">👁️ Ojos</button>
+                <button class="tab-btn" onclick="switchTab('tab-pelo', this)">💇 Pelo</button>
+                <button class="tab-btn" onclick="switchTab('tab-ropa', this)">👗 Ropa</button>
+                <button class="tab-btn" onclick="switchTab('tab-accesorios', this)">👑 Extras</button>
+                <button class="tab-btn" onclick="switchTab('tab-fondo', this)">🎨 Fondo</button>
+            </nav>
+
+            <div class="options-panel">
+                
+                <div id="tab-cuerpo" class="tab-content active">
+                    <div class="section-label">Forma de la Cara:</div>
+                    <div class="options-grid" id="grid-face-shape"></div>
+                    
+                    <div class="color-picker-box">
+                        <span>Color de Piel:</span>
+                        <input type="color" id="picker-skin" onchange="getCurrentState().skinColor = this.value; render(); playSound('click');">
+                    </div>
+                </div>
+
+                <div id="tab-ojos" class="tab-content">
+                    <div class="section-label">Estilo de Ojos:</div>
+                    <div class="options-grid" id="grid-eyes"></div>
+                    <div class="color-picker-box">
+                        <span>Color de Ojos:</span>
+                        <input type="color" id="picker-eyes" onchange="getCurrentState().eyeColor = this.value; render(); playSound('click');">
+                    </div>
+                </div>
+
+                <div id="tab-pelo" class="tab-content">
+                    <div class="section-label">Corte de Pelo:</div>
+                    <div class="options-grid" id="grid-hair"></div>
+                    <div class="color-picker-box">
+                        <span>Color de Pelo:</span>
+                        <input type="color" id="picker-hair" onchange="getCurrentState().hairColor = this.value; render(); playSound('click');">
+                    </div>
+                </div>
+
+                <div id="tab-ropa" class="tab-content">
+                    <div class="section-label">Estilo de Ropa:</div>
+                    <div class="options-grid" id="grid-clothes"></div>
+                    <div class="color-picker-box">
+                        <span>Color Principal:</span>
+                        <input type="color" id="picker-clothes" onchange="getCurrentState().clothesColor = this.value; render(); playSound('click');">
+                    </div>
+                </div>
+
+                <div id="tab-accesorios" class="tab-content">
+                    <div class="section-label">Sombreros / Cabeza:</div>
+                    <div class="options-grid" id="grid-hats"></div>
+                    
+                    <div class="section-label">Gafas:</div>
+                    <div class="options-grid" id="grid-glasses"></div>
+
+                    <div class="section-label">Objeto en Mano:</div>
+                    <div class="options-grid" id="grid-hand"></div>
+                </div>
+
+                <div id="tab-fondo" class="tab-content">
+                    <div class="options-grid" id="grid-bg"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        let currentGender = 'girl';
+        let audioCtx = null;
+
+        const skinPalettes = ['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'];
+        const hairPalettes = ['#f59e0b', '#1e293b', '#b45309', '#ef4444', '#a855f7', '#3b82f6'];
+        const clothesPalettes = ['#ec4899', '#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#1e293b'];
+        const eyePalettes = ['#2563eb', '#16a34a', '#78350f', '#0284c7', '#dc2626'];
+
+        const girlState = {
+            faceShape: 0,
+            skinColor: '#ffdbac',
+            eyeColor: '#2563eb',
+            eyeStyle: 0,
+            hairStyle: 0,
+            hairColor: '#f59e0b',
+            clothesStyle: 0,
+            clothesColor: '#ec4899',
+            hat: 0,
+            glasses: 0,
+            handItem: 0,
+            bg: 0
+        };
+
+        const boyState = {
+            faceShape: 0,
+            skinColor: '#f1c27d',
+            eyeColor: '#16a34a',
+            eyeStyle: 0,
+            hairStyle: 0,
+            hairColor: '#1e293b',
+            clothesStyle: 0,
+            clothesColor: '#2563eb',
+            hat: 0,
+            glasses: 0,
+            handItem: 0,
+            bg: 0
+        };
+
+        // --- SISTEMA DE SONIDO (Web Audio API) ---
+        function playSound(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'random') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'download') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                }
+            } catch (e) {
+                // Silenciar errores en navegadores que restrinjan el audio
+            }
+        }
+
+        function getCurrentState() {
+            return currentGender === 'girl' ? girlState : boyState;
+        }
+
+        function setGender(g) {
+            playSound('click');
+            currentGender = g;
+            document.getElementById('btn-girl').classList.toggle('active', g === 'girl');
+            document.getElementById('btn-boy').classList.toggle('active', g === 'boy');
+            
+            syncPickersWithState();
+            rebuildUI();
+            render();
+        }
+
+        function syncPickersWithState() {
+            const st = getCurrentState();
+            document.getElementById('picker-skin').value = st.skinColor;
+            document.getElementById('picker-eyes').value = st.eyeColor;
+            document.getElementById('picker-hair').value = st.hairColor;
+            document.getElementById('picker-clothes').value = st.clothesColor;
+        }
+
+        function render() {
+            const st = getCurrentState();
+
+            // 1. Fondos
+            const bgs = [
+                `<svg viewBox="0 0 320 420"><rect width="320" height="420" fill="#bfdbfe"/><circle cx="270" cy="70" r="35" fill="#fef08a"/><path d="M40,120 Q60,100 80,120 Q100,100 120,120 Q130,135 110,140 L50,140 Z" fill="#fff" opacity="0.9"/><path d="M200,160 Q215,145 230,160 Q245,145 260,160 Q270,175 250,180 L210,180 Z" fill="#fff" opacity="0.8"/><rect y="360" width="320" height="60" fill="#86efac"/></svg>`,
+                `<svg viewBox="0 0 320 420"><rect width="320" height="420" fill="#0f172a"/><circle cx="260" cy="80" r="30" fill="#f1f5f9"/><circle cx="270" cy="75" r="25" fill="#0f172a"/><circle cx="50" cy="60" r="2" fill="#fff"/><circle cx="180" cy="40" r="3" fill="#38bdf8"/><circle cx="80" cy="180" r="2" fill="#fff"/><circle cx="290" cy="220" r="2" fill="#fff"/><circle cx="120" cy="280" r="3" fill="#f43f5e"/><path d="M0,380 Q160,350 320,380 L320,420 L0,420 Z" fill="#1e1b4b"/></svg>`,
+                `<svg viewBox="0 0 320 420"><defs><linearGradient id="grad-atardecer" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fdba74"/><stop offset="60%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#881337"/></linearGradient></defs><rect width="320" height="420" fill="url(#grad-atardecer)"/><circle cx="160" cy="260" r="50" fill="#fef08a" opacity="0.8"/><path d="M-20,380 Q80,330 180,370 Q250,340 340,380 L340,420 L-20,420 Z" fill="#4c0519"/></svg>`,
+                `<svg viewBox="0 0 320 420"><rect width="320" height="420" fill="#064e3b"/><polygon points="40,420 80,240 120,420" fill="#022c22"/><polygon points="200,420 250,200 300,420" fill="#022c22"/><polygon points="-10,420 30,280 70,420" fill="#047857"/><polygon points="120,420 170,220 220,420" fill="#047857"/><circle cx="100" cy="120" r="4" fill="#fef08a" opacity="0.8"/><circle cx="220" cy="150" r="5" fill="#fef08a" opacity="0.9"/></svg>`,
+                `<svg viewBox="0 0 320 420"><rect width="320" height="260" fill="#38bdf8"/><rect y="260" width="320" height="160" fill="#0284c7"/><path d="M0,320 Q160,290 320,330 L320,420 L0,420 Z" fill="#fde047"/><path d="M260,330 Q280,250 240,160" stroke="#78350f" stroke-width="8" fill="none"/><path d="M240,160 Q200,150 180,170 M240,160 Q220,130 210,120 M240,160 Q270,130 290,135 M240,160 Q280,160 300,180" stroke="#15803d" stroke-width="6" fill="none"/></svg>`,
+                `<svg viewBox="0 0 320 420"><rect width="320" height="420" fill="#312e81"/><rect x="60" y="220" width="200" height="200" fill="#4338ca"/><rect x="40" y="160" width="50" height="200" fill="#3730a3"/><polygon points="40,160 65,100 90,160" fill="#e11d48"/><rect x="230" y="160" width="50" height="200" fill="#3730a3"/><polygon points="230,160 255,100 280,160" fill="#e11d48"/><polygon points="160,120 120,220 200,220" fill="#312e81"/><circle cx="160" cy="60" r="20" fill="#fef08a"/></svg>`,
+                `<svg viewBox="0 0 320 420"><rect width="320" height="280" fill="#fbcfe8"/><rect y="280" width="320" height="140" fill="#e2e8f0"/><line x1="0" y1="280" x2="320" y2="280" stroke="#cbd5e1" stroke-width="4"/><rect x="30" y="60" width="80" height="100" fill="#bfdbfe" stroke="#fff" stroke-width="6"/><line x1="70" y1="60" x2="70" y2="160" stroke="#fff" stroke-width="4"/><line x1="30" y1="110" x2="110" y2="110" stroke="#fff" stroke-width="4"/></svg>`
+            ];
+            document.getElementById('layer-bg').innerHTML = bgs[st.bg] || bgs[0];
+
+            // 2. Formas de Cara
+            const faceSVG = [
+                `<rect x="110" y="80" width="100" height="105" rx="40" fill="${st.skinColor}" />`,
+                `<rect x="110" y="80" width="100" height="105" rx="18" fill="${st.skinColor}" />`,
+                `<ellipse cx="160" cy="132" rx="48" ry="58" fill="${st.skinColor}" />`,
+                `<rect x="115" y="75" width="90" height="120" rx="35" fill="${st.skinColor}" />`
+            ];
+
+            // Cuerpo Base
+            document.getElementById('layer-body').innerHTML = `
+                <svg viewBox="0 0 320 420">
+                    <rect x="148" y="170" width="24" height="35" rx="5" fill="${st.skinColor}" />
+                    ${faceSVG[st.faceShape]}
+                    <path d="M110,200 L210,200 L220,340 L100,340 Z" fill="${st.skinColor}" />
+                    <path d="M102,205 Q82,245 87,285" stroke="${st.skinColor}" stroke-width="16" stroke-linecap="round" fill="none"/>
+                    <path d="M218,205 Q241,230 231,270" stroke="${st.skinColor}" stroke-width="16" stroke-linecap="round" fill="none"/>
+                    <circle cx="231" cy="270" r="10" fill="${st.skinColor}" />
+                </svg>
+            `;
+
+            // 3. Ojos
+            const eyes = [
+                `<svg viewBox="0 0 320 420"><ellipse cx="138" cy="130" rx="8" ry="11" fill="${st.eyeColor}"/><ellipse cx="182" cy="130" rx="8" ry="11" fill="${st.eyeColor}"/><circle cx="136" cy="126" r="3" fill="#fff"/><circle cx="180" cy="126" r="3" fill="#fff"/><path d="M148,155 Q160,165 172,155" stroke="#1e1b4b" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+                `<svg viewBox="0 0 320 420"><ellipse cx="138" cy="130" rx="8" ry="11" fill="${st.eyeColor}"/><circle cx="136" cy="126" r="3" fill="#fff"/><path d="M174,130 Q182,120 190,130" stroke="#1e1b4b" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M148,155 Q160,165 172,155" stroke="#1e1b4b" stroke-width="3" fill="none"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M130,132 Q138,122 146,132" stroke="${st.eyeColor}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M174,132 Q182,122 190,132" stroke="${st.eyeColor}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M148,155 Q160,165 172,155" stroke="#1e1b4b" stroke-width="3" fill="none"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M130,126 L146,130" stroke="#1e1b4b" stroke-width="3"/><circle cx="138" cy="133" r="5" fill="${st.eyeColor}"/><path d="M190,126 L174,130" stroke="#1e1b4b" stroke-width="3"/><circle cx="182" cy="133" r="5" fill="${st.eyeColor}"/><path d="M150,158 L170,155" stroke="#1e1b4b" stroke-width="3" stroke-linecap="round"/></svg>`,
+                `<svg viewBox="0 0 320 420"><circle cx="138" cy="130" r="11" fill="#fff" stroke="#1e1b4b" stroke-width="2"/><circle cx="182" cy="130" r="11" fill="#fff" stroke="#1e1b4b" stroke-width="2"/><circle cx="138" cy="130" r="6" fill="${st.eyeColor}"/><circle cx="182" cy="130" r="6" fill="${st.eyeColor}"/><circle cx="158" cy="158" r="4" fill="#1e1b4b"/></svg>`
+            ];
+            document.getElementById('layer-eyes').innerHTML = eyes[st.eyeStyle];
+
+            // 4. Pelo
+            let hairBackSVG = "", hairFrontSVG = "";
+            if (currentGender === 'girl') {
+                const hBack = [
+                    `<svg viewBox="0 0 320 420"><path d="M95,100 Q160,40 225,100 L235,280 Q160,260 85,280 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="90" cy="95" r="25" fill="${st.hairColor}"/><circle cx="230" cy="95" r="25" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M80,110 Q160,30 240,110 L250,340 Q160,310 70,340 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M75,100 Q160,20 245,100 C270,180 250,290 230,300 Q160,270 90,300 C70,290 50,180 75,100 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="160" cy="55" r="32" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`
+                ];
+                const hFront = [
+                    `<svg viewBox="0 0 320 420"><path d="M106,100 Q160,50 214,100 Q180,105 160,115 Q140,105 106,100 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,60 214,95 Q160,105 106,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,55 214,95 Q218,120 210,125 Q180,110 160,115 Q140,110 110,125 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,50 214,95 Q190,115 160,100 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="115" cy="85" r="18" fill="${st.hairColor}"/><circle cx="145" cy="75" r="20" fill="${st.hairColor}"/><circle cx="175" cy="75" r="20" fill="${st.hairColor}"/><circle cx="205" cy="85" r="18" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,65 214,95 Q180,105 160,110 Q140,105 106,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M102,90 Q160,40 218,90 L225,180 Q160,165 95,180 Z" fill="${st.hairColor}"/></svg>`
+                ];
+                hairBackSVG = hBack[st.hairStyle] || "";
+                hairFrontSVG = hFront[st.hairStyle] || "";
+            } else {
+                const hFrontBoy = [
+                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,40 215,95 Q190,80 160,95 Q130,80 105,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,20 215,95 Q170,75 105,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,50 215,95 Q180,100 130,90 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M102,95 Q160,35 218,95 L222,125 L98,125 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="120" cy="80" r="16" fill="${st.hairColor}"/><circle cx="145" cy="65" r="18" fill="${st.hairColor}"/><circle cx="175" cy="65" r="18" fill="${st.hairColor}"/><circle cx="200" cy="80" r="16" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,90 Q160,30 220,90 L228,210 Q210,160 160,160 Q110,160 92,210 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><polygon points="130,95 160,30 190,95" fill="${st.hairColor}"/><path d="M105,95 Q160,60 215,95 Z" fill="${st.hairColor}"/></svg>`
+                ];
+                hairFrontSVG = hFrontBoy[st.hairStyle] || "";
+            }
+            document.getElementById('layer-hair-back').innerHTML = hairBackSVG;
+            document.getElementById('layer-hair-front').innerHTML = hairFrontSVG;
+
+            // 5. Ropa
+            const clothesGirl = [
+                `<svg viewBox="0 0 320 420"><path d="M102,198 L218,198 L238,340 L82,340 Z" fill="${st.clothesColor}"/><path d="M135,198 L185,198 L160,225 Z" fill="#fff"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M102,198 L218,198 L218,260 L102,260 Z" fill="${st.clothesColor}"/><path d="M102,260 L218,260 L224,342 L96,342 Z" fill="#1d4ed8"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M98,195 L222,195 L226,305 L94,305 Z" fill="${st.clothesColor}"/><path d="M140,195 L180,195 L160,245 Z" fill="#475569"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M102,198 L218,198 L218,342 L102,342 Z" fill="#fff"/><rect x="118" y="215" width="84" height="127" fill="${st.clothesColor}"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M98,195 L222,195 L242,342 L78,342 Z" fill="${st.clothesColor}"/><polygon points="160,198 142,342 178,342" fill="#facc15"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M100,198 L220,198 L226,342 L94,342 Z" fill="#1e293b"/><polygon points="160,198 138,260 182,260" fill="${st.clothesColor}"/></svg>`
+            ];
+
+            const clothesBoy = [
+                `<svg viewBox="0 0 320 420"><path d="M100,198 L220,198 L220,260 L100,260 Z" fill="${st.clothesColor}"/><path d="M100,260 L220,260 L226,342 L94,342 Z" fill="#1e3a8a"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M98,195 L222,195 L226,295 L94,295 Z" fill="${st.clothesColor}"/><rect x="130" y="240" width="60" height="40" fill="#cbd5e1"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M100,198 L220,198 L226,342 L94,342 Z" fill="#0f172a"/><polygon points="160,198 142,215 178,215" fill="#fff"/><polygon points="160,215 154,270 160,280 166,270" fill="${st.clothesColor}"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M98,195 L222,195 L226,305 L94,305 Z" fill="${st.clothesColor}"/><line x1="160" y1="195" x2="160" y2="305" stroke="#0f172a" stroke-width="4"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M100,198 L220,198 L226,342 L94,342 Z" fill="#ffffff"/><path d="M100,198 L142,198 L136,342 L94,342 Z" fill="${st.clothesColor}"/><path d="M220,198 L178,198 L184,342 L226,342 Z" fill="${st.clothesColor}"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M98,195 L222,195 L242,342 L78,342 Z" fill="${st.clothesColor}"/><path d="M138,195 L182,195 L182,342 L138,342 Z" fill="#facc15"/></svg>`
+            ];
+
+            const currentClothes = currentGender === 'girl' ? clothesGirl : clothesBoy;
+            document.getElementById('layer-clothes').innerHTML = currentClothes[st.clothesStyle] || currentClothes[0];
+
+            // 6. Accesorios
+            const hats = [
+                `<svg viewBox="0 0 320 420"></svg>`,
+                `<svg viewBox="0 0 320 420"><polygon points="135,68 148,88 160,62 172,88 185,68 185,92 135,92" fill="#facc15" stroke="#eab308" stroke-width="2"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M108,92 Q160,40 212,92 L220,102 L100,102 Z" fill="#ec4899"/><circle cx="160" cy="42" r="10" fill="#fff"/></svg>`,
+                `<svg viewBox="0 0 320 420"><polygon points="160,75 135,60 135,90" fill="#f43f5e"/><polygon points="160,75 185,60 185,90" fill="#f43f5e"/><circle cx="160" cy="75" r="6" fill="#fff"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M100,130 Q100,60 160,60 Q220,60 220,130" stroke="#1e293b" stroke-width="8" fill="none"/><rect x="92" y="115" width="16" height="32" rx="6" fill="#3b82f6"/><rect x="212" y="115" width="16" height="32" rx="6" fill="#3b82f6"/></svg>`
+            ];
+            document.getElementById('layer-hat').innerHTML = hats[st.hat] || hats[0];
+
+            const glasses = [
+                `<svg viewBox="0 0 320 420"></svg>`,
+                `<svg viewBox="0 0 320 420"><circle cx="138" cy="130" r="14" stroke="#1e1b4b" stroke-width="3" fill="none"/><circle cx="182" cy="130" r="14" stroke="#1e1b4b" stroke-width="3" fill="none"/><line x1="152" y1="130" x2="168" y2="130" stroke="#1e1b4b" stroke-width="3"/></svg>`
+            ];
+            document.getElementById('layer-glasses').innerHTML = glasses[st.glasses] || glasses[0];
+
+            const handItems = [
+                `<svg viewBox="0 0 320 420"></svg>`,
+                `<svg viewBox="0 0 320 420"><line x1="231" y1="270" x2="268" y2="200" stroke="#8b5cf6" stroke-width="5" stroke-linecap="round"/><polygon points="268,200 263,190 273,185 278,195" fill="#facc15"/></svg>`,
+                `<svg viewBox="0 0 320 420"><ellipse cx="265" cy="260" rx="16" ry="20" fill="#10b981"/><circle cx="272" cy="242" r="10" fill="#10b981"/><circle cx="275" cy="240" r="2" fill="#000"/><polygon points="260,250 248,240 252,262" fill="#047857"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M235,230 Q235,200 270,200 Q305,200 305,230 Q305,250 270,250 L250,265 L255,250 Q235,250 235,230 Z" fill="#fff" stroke="#1e293b" stroke-width="3"/><text x="270" y="233" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b">HI!</text></svg>`,
+                `<svg viewBox="0 0 320 420"><line x1="231" y1="270" x2="275" y2="175" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/><line x1="225" y1="255" x2="245" y2="265" stroke="#facc15" stroke-width="6"/></svg>`,
+                `<svg viewBox="0 0 320 420"><line x1="231" y1="270" x2="255" y2="215" stroke="#fff" stroke-width="4"/><circle cx="255" cy="210" r="14" fill="#ec4899"/><circle cx="255" cy="210" r="8" fill="#fef08a"/></svg>`
+            ];
+            document.getElementById('layer-hand-item').innerHTML = handItems[st.handItem] || handItems[0];
+        }
+
+        function rebuildUI() {
+            const st = getCurrentState();
+
+            const gFace = document.getElementById('grid-face-shape');
+            gFace.innerHTML = '';
+            ['Redonda', 'Cuadrada', 'Ovalada', 'Fina'].forEach((l, i) => gFace.appendChild(createBtn(l, () => { st.faceShape = i; render(); }, i === st.faceShape)));
+
+            const gEyes = document.getElementById('grid-eyes');
+            gEyes.innerHTML = '';
+            ['Manga', 'Guiño', 'Sonriente', 'Astuto', 'Grandes'].forEach((l, i) => gEyes.appendChild(createBtn(l, () => { st.eyeStyle = i; render(); }, i === st.eyeStyle)));
+
+            const gHair = document.getElementById('grid-hair');
+            gHair.innerHTML = '';
+            const hairLabels = currentGender === 'girl' 
+                ? ['Largo', 'Coletas', 'Corto', 'Extra Largo', 'Rizado', 'Moño Alto', 'Melena'] 
+                : ['Corto', 'Tupé', 'Raya Lado', 'Casco', 'Rizado', 'Héroe', 'Cresta'];
+            hairLabels.forEach((l, i) => gHair.appendChild(createBtn(l, () => { st.hairStyle = i; render(); }, i === st.hairStyle)));
+
+            const gClothes = document.getElementById('grid-clothes');
+            gClothes.innerHTML = '';
+            const clothesLabels = currentGender === 'girl' 
+                ? ['Vestido', 'Casual', 'Sudadera', 'Peto', 'Mágica', 'Elegante'] 
+                : ['Casual', 'Sudadera', 'Traje', 'Chaqueta', 'Camisa', 'Túnica'];
+            clothesLabels.forEach((l, i) => gClothes.appendChild(createBtn(l, () => { st.clothesStyle = i; render(); }, i === st.clothesStyle)));
+
+            const gHats = document.getElementById('grid-hats');
+            gHats.innerHTML = '';
+            ['Ninguno', 'Corona', 'Gorro', 'Lazo', 'Cascos'].forEach((l, i) => gHats.appendChild(createBtn(l, () => { st.hat = i; render(); }, i === st.hat)));
+
+            const gGlass = document.getElementById('grid-glasses');
+            gGlass.innerHTML = '';
+            ['Sin Gafas', 'Gafas'].forEach((l, i) => gGlass.appendChild(createBtn(l, () => { st.glasses = i; render(); }, i === st.glasses)));
+
+            const gHand = document.getElementById('grid-hand');
+            gHand.innerHTML = '';
+            ['Nada', 'Varita', 'Dragón', 'Bocadillo', 'Espada', 'Piruleta'].forEach((l, i) => gHand.appendChild(createBtn(l, () => { st.handItem = i; render(); }, i === st.handItem)));
+
+            const gBg = document.getElementById('grid-bg');
+            gBg.innerHTML = '';
+            ['Día', 'Espacio', 'Atardecer', 'Bosque', 'Playa', 'Castillo', 'Cuarto'].forEach((l, i) => gBg.appendChild(createBtn(l, () => { st.bg = i; render(); }, i === st.bg)));
+        }
+
+        function createBtn(text, onClick, isSelected = false) {
+            const btn = document.createElement('div');
+            btn.className = 'option-card' + (isSelected ? ' selected' : '');
+            btn.innerText = text;
+            btn.onclick = () => {
+                playSound('click');
+                btn.parentElement.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                onClick();
+            };
+            return btn;
+        }
+
+        function switchTab(tabId, btn) {
+            playSound('click');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- MÉTODOS PROMPT 3: BOTÓN ALEATORIO Y DESCARGA PNG ---
+        function randomizeAvatar() {
+            playSound('random');
+            const st = getCurrentState();
+            const getRandom = (max) => Math.floor(Math.random() * max);
+            const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+            st.faceShape = getRandom(4);
+            st.eyeStyle = getRandom(5);
+            st.hairStyle = getRandom(7);
+            st.clothesStyle = getRandom(6);
+            st.hat = getRandom(5);
+            st.glasses = getRandom(2);
+            st.handItem = getRandom(6);
+            st.bg = getRandom(7);
+
+            st.skinColor = getRandomItem(skinPalettes);
+            st.hairColor = getRandomItem(hairPalettes);
+            st.clothesColor = getRandomItem(clothesPalettes);
+            st.eyeColor = getRandomItem(eyePalettes);
+
+            syncPickersWithState();
+            rebuildUI();
+            render();
+        }
+
+        function downloadPNG() {
+            playSound('download');
+            const preview = document.getElementById('avatar-preview');
+            const layers = preview.querySelectorAll('.avatar-layer');
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;  // Resolución HQ
+            canvas.height = 840;
+            const ctx = canvas.getContext('2d');
+
+            let combinedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="840" viewBox="0 0 320 420">`;
+            layers.forEach(layer => {
+                combinedSVG += layer.innerHTML;
+            });
+            combinedSVG += `</svg>`;
+
+            const blob = new Blob([combinedSVG], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(blob);
+
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 640, 840);
+                const nameInput = document.getElementById('avatar-name').value.trim();
+                const fileName = nameInput ? `avatar-${nameInput.toLowerCase().replace(/\s+/g, '-')}.png` : 'mi-avatar-magico.png';
+
+                const a = document.createElement('a');
+                a.download = fileName;
+                a.href = canvas.toDataURL('image/png');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobURL);
+            };
+            img.src = blobURL;
+        }
+
+        syncPickersWithState();
+        rebuildUI();
+        render();
+    </script>
+</body>
+</html>
