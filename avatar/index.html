@@ -400,7 +400,6 @@
             bg: 0
         };
 
-        // --- SISTEMA DE SONIDO (Web Audio API) ---
         function playSound(type) {
             try {
                 if (!audioCtx) {
@@ -436,17 +435,15 @@
                     osc.stop(now + 0.2);
                 } else if (type === 'download') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
                     gain.gain.setValueAtTime(0.2, now);
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
                     osc.start(now);
                     osc.stop(now + 0.35);
                 }
-            } catch (e) {
-                // Silenciar errores en navegadores que restrinjan el audio
-            }
+            } catch (e) {}
         }
 
         function getCurrentState() {
@@ -487,12 +484,12 @@
             ];
             document.getElementById('layer-bg').innerHTML = bgs[st.bg] || bgs[0];
 
-            // 2. Formas de Cara
+            // 2. Formas de Cara (Ajustados anchos para evitar espacios vacíos)
             const faceSVG = [
-                `<rect x="110" y="80" width="100" height="105" rx="40" fill="${st.skinColor}" />`,
-                `<rect x="110" y="80" width="100" height="105" rx="18" fill="${st.skinColor}" />`,
-                `<ellipse cx="160" cy="132" rx="48" ry="58" fill="${st.skinColor}" />`,
-                `<rect x="115" y="75" width="90" height="120" rx="35" fill="${st.skinColor}" />`
+                `<rect x="105" y="70" width="110" height="115" rx="45" fill="${st.skinColor}" />`,
+                `<rect x="102" y="70" width="116" height="115" rx="25" fill="${st.skinColor}" />`,
+                `<ellipse cx="160" cy="128" rx="56" ry="60" fill="${st.skinColor}" />`,
+                `<rect x="106" y="68" width="108" height="122" rx="40" fill="${st.skinColor}" />`
             ];
 
             // Cuerpo Base
@@ -517,7 +514,7 @@
             ];
             document.getElementById('layer-eyes').innerHTML = eyes[st.eyeStyle];
 
-            // 4. Pelo
+            // 4. Pelo (8 Opciones)
             let hairBackSVG = "", hairFrontSVG = "";
             if (currentGender === 'girl') {
                 const hBack = [
@@ -527,29 +524,54 @@
                     `<svg viewBox="0 0 320 420"><path d="M80,110 Q160,30 240,110 L250,340 Q160,310 70,340 Z" fill="${st.hairColor}"/></svg>`,
                     `<svg viewBox="0 0 320 420"><path d="M75,100 Q160,20 245,100 C270,180 250,290 230,300 Q160,270 90,300 C70,290 50,180 75,100 Z" fill="${st.hairColor}"/></svg>`,
                     `<svg viewBox="0 0 320 420"><circle cx="160" cy="55" r="32" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"></svg>`
+                    // Melena ajustada al fondo
+                    `<svg viewBox="0 0 320 420"><path d="M92,80 Q160,35 228,80 L235,220 Q160,205 85,220 Z" fill="${st.hairColor}"/></svg>`,
+                    // Trenzas largas
+                    `<svg viewBox="0 0 320 420">
+                        <path d="M95,120 Q85,200 75,290" stroke="${st.hairColor}" stroke-width="16" stroke-linecap="round" fill="none"/>
+                        <path d="M225,120 Q235,200 245,290" stroke="${st.hairColor}" stroke-width="16" stroke-linecap="round" fill="none"/>
+                        <circle cx="75" cy="290" r="5" fill="#f43f5e"/><circle cx="245" cy="290" r="5" fill="#f43f5e"/>
+                    </svg>`
                 ];
                 const hFront = [
-                    `<svg viewBox="0 0 320 420"><path d="M106,100 Q160,50 214,100 Q180,105 160,115 Q140,105 106,100 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,60 214,95 Q160,105 106,95 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,55 214,95 Q218,120 210,125 Q180,110 160,115 Q140,110 110,125 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,50 214,95 Q190,115 160,100 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><circle cx="115" cy="85" r="18" fill="${st.hairColor}"/><circle cx="145" cy="75" r="20" fill="${st.hairColor}"/><circle cx="175" cy="75" r="20" fill="${st.hairColor}"/><circle cx="205" cy="85" r="18" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M106,95 Q160,65 214,95 Q180,105 160,110 Q140,105 106,95 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M102,90 Q160,40 218,90 L225,180 Q160,165 95,180 Z" fill="${st.hairColor}"/></svg>`
+                    `<svg viewBox="0 0 320 420"><path d="M100,95 Q160,45 220,95 Q180,105 160,115 Q140,105 100,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,95 Q160,55 220,95 Q160,105 100,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,95 Q160,50 220,95 Q222,120 214,125 Q180,110 160,115 Q140,110 106,125 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,95 Q160,45 220,95 Q190,115 160,100 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="115" cy="80" r="18" fill="${st.hairColor}"/><circle cx="145" cy="70" r="20" fill="${st.hairColor}"/><circle cx="175" cy="70" r="20" fill="${st.hairColor}"/><circle cx="205" cy="80" r="18" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,95 Q160,60 220,95 Q180,105 160,110 Q140,105 100,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,85 Q160,40 220,85 Q200,100 160,95 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M100,90 Q160,45 220,90 Q180,105 160,110 Q140,105 100,90 Z" fill="${st.hairColor}"/></svg>`
                 ];
                 hairBackSVG = hBack[st.hairStyle] || "";
                 hairFrontSVG = hFront[st.hairStyle] || "";
             } else {
-                const hFrontBoy = [
-                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,40 215,95 Q190,80 160,95 Q130,80 105,95 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,20 215,95 Q170,75 105,95 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M105,95 Q160,50 215,95 Q180,100 130,90 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M102,95 Q160,35 218,95 L222,125 L98,125 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><circle cx="120" cy="80" r="16" fill="${st.hairColor}"/><circle cx="145" cy="65" r="18" fill="${st.hairColor}"/><circle cx="175" cy="65" r="18" fill="${st.hairColor}"/><circle cx="200" cy="80" r="16" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><path d="M100,90 Q160,30 220,90 L228,210 Q210,160 160,160 Q110,160 92,210 Z" fill="${st.hairColor}"/></svg>`,
-                    `<svg viewBox="0 0 320 420"><polygon points="130,95 160,30 190,95" fill="${st.hairColor}"/><path d="M105,95 Q160,60 215,95 Z" fill="${st.hairColor}"/></svg>`
+                const hBackBoy = [
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    // Héroe (Detrás)
+                    `<svg viewBox="0 0 320 420"><path d="M92,85 Q160,25 228,85 L232,200 Q210,160 160,160 Q110,160 88,200 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"></svg>`,
+                    // Surfero (Detrás)
+                    `<svg viewBox="0 0 320 420"><path d="M88,85 Q160,20 232,85 L240,180 Q160,160 80,180 Z" fill="${st.hairColor}"/></svg>`
                 ];
+
+                const hFrontBoy = [
+                    `<svg viewBox="0 0 320 420"><path d="M98,90 Q160,35 222,90 Q190,75 160,90 Q130,75 98,90 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M98,90 Q160,15 222,90 Q170,70 98,90 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M98,90 Q160,45 222,90 Q180,95 125,85 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><path d="M96,90 Q160,30 224,90 L226,120 L94,120 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><circle cx="115" cy="75" r="16" fill="${st.hairColor}"/><circle cx="145" cy="60" r="18" fill="${st.hairColor}"/><circle cx="175" cy="60" r="18" fill="${st.hairColor}"/><circle cx="205" cy="75" r="16" fill="${st.hairColor}"/></svg>`,
+                    // Héroe (Frente suave)
+                    `<svg viewBox="0 0 320 420"><path d="M98,85 Q160,35 222,85 Q180,95 160,95 Q140,95 98,85 Z" fill="${st.hairColor}"/></svg>`,
+                    `<svg viewBox="0 0 320 420"><polygon points="125,90 160,25 195,90" fill="${st.hairColor}"/><path d="M98,90 Q160,55 222,90 Z" fill="${st.hairColor}"/></svg>`,
+                    // Surfero (Frente)
+                    `<svg viewBox="0 0 320 420"><path d="M96,85 Q160,30 224,85 Q180,105 130,90 Z" fill="${st.hairColor}"/></svg>`
+                ];
+                hairBackSVG = hBackBoy[st.hairStyle] || "";
                 hairFrontSVG = hFrontBoy[st.hairStyle] || "";
             }
             document.getElementById('layer-hair-back').innerHTML = hairBackSVG;
@@ -578,14 +600,25 @@
             document.getElementById('layer-clothes').innerHTML = currentClothes[st.clothesStyle] || currentClothes[0];
 
             // 6. Accesorios
-            const hats = [
+            const hatsGirl = [
                 `<svg viewBox="0 0 320 420"></svg>`,
                 `<svg viewBox="0 0 320 420"><polygon points="135,68 148,88 160,62 172,88 185,68 185,92 135,92" fill="#facc15" stroke="#eab308" stroke-width="2"/></svg>`,
                 `<svg viewBox="0 0 320 420"><path d="M108,92 Q160,40 212,92 L220,102 L100,102 Z" fill="#ec4899"/><circle cx="160" cy="42" r="10" fill="#fff"/></svg>`,
                 `<svg viewBox="0 0 320 420"><polygon points="160,75 135,60 135,90" fill="#f43f5e"/><polygon points="160,75 185,60 185,90" fill="#f43f5e"/><circle cx="160" cy="75" r="6" fill="#fff"/></svg>`,
                 `<svg viewBox="0 0 320 420"><path d="M100,130 Q100,60 160,60 Q220,60 220,130" stroke="#1e293b" stroke-width="8" fill="none"/><rect x="92" y="115" width="16" height="32" rx="6" fill="#3b82f6"/><rect x="212" y="115" width="16" height="32" rx="6" fill="#3b82f6"/></svg>`
             ];
-            document.getElementById('layer-hat').innerHTML = hats[st.hat] || hats[0];
+
+            const hatsBoy = [
+                `<svg viewBox="0 0 320 420"></svg>`,
+                `<svg viewBox="0 0 320 420"><polygon points="135,68 148,88 160,62 172,88 185,68 185,92 135,92" fill="#facc15" stroke="#eab308" stroke-width="2"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M108,92 Q160,40 212,92 L220,102 L100,102 Z" fill="#3b82f6"/><circle cx="160" cy="42" r="10" fill="#fff"/></svg>`,
+                // Gorra Urbana (Reemplazo del Lazo para Chico)
+                `<svg viewBox="0 0 320 420"><path d="M108,90 Q160,50 212,90 Z" fill="#1e293b"/><path d="M100,90 Q160,82 220,90 L220,98 L100,98 Z" fill="#dc2626"/></svg>`,
+                `<svg viewBox="0 0 320 420"><path d="M100,130 Q100,60 160,60 Q220,60 220,130" stroke="#1e293b" stroke-width="8" fill="none"/><rect x="92" y="115" width="16" height="32" rx="6" fill="#3b82f6"/><rect x="212" y="115" width="16" height="32" rx="6" fill="#3b82f6"/></svg>`
+            ];
+
+            const currentHats = currentGender === 'girl' ? hatsGirl : hatsBoy;
+            document.getElementById('layer-hat').innerHTML = currentHats[st.hat] || currentHats[0];
 
             const glasses = [
                 `<svg viewBox="0 0 320 420"></svg>`,
@@ -618,8 +651,8 @@
             const gHair = document.getElementById('grid-hair');
             gHair.innerHTML = '';
             const hairLabels = currentGender === 'girl' 
-                ? ['Largo', 'Coletas', 'Corto', 'Extra Largo', 'Rizado', 'Moño Alto', 'Melena'] 
-                : ['Corto', 'Tupé', 'Raya Lado', 'Casco', 'Rizado', 'Héroe', 'Cresta'];
+                ? ['Largo', 'Coletas', 'Corto', 'Extra Largo', 'Rizado', 'Moño Alto', 'Melena', 'Trenzas'] 
+                : ['Corto', 'Tupé', 'Raya Lado', 'Casco', 'Rizado', 'Héroe', 'Cresta', 'Surfero'];
             hairLabels.forEach((l, i) => gHair.appendChild(createBtn(l, () => { st.hairStyle = i; render(); }, i === st.hairStyle)));
 
             const gClothes = document.getElementById('grid-clothes');
@@ -631,7 +664,10 @@
 
             const gHats = document.getElementById('grid-hats');
             gHats.innerHTML = '';
-            ['Ninguno', 'Corona', 'Gorro', 'Lazo', 'Cascos'].forEach((l, i) => gHats.appendChild(createBtn(l, () => { st.hat = i; render(); }, i === st.hat)));
+            const hatLabels = currentGender === 'girl'
+                ? ['Ninguno', 'Corona', 'Gorro', 'Lazo', 'Cascos']
+                : ['Ninguno', 'Corona', 'Gorro', 'Gorra', 'Cascos'];
+            hatLabels.forEach((l, i) => gHats.appendChild(createBtn(l, () => { st.hat = i; render(); }, i === st.hat)));
 
             const gGlass = document.getElementById('grid-glasses');
             gGlass.innerHTML = '';
@@ -667,7 +703,6 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // --- MÉTODOS PROMPT 3: BOTÓN ALEATORIO Y DESCARGA PNG ---
         function randomizeAvatar() {
             playSound('random');
             const st = getCurrentState();
@@ -676,7 +711,7 @@
 
             st.faceShape = getRandom(4);
             st.eyeStyle = getRandom(5);
-            st.hairStyle = getRandom(7);
+            st.hairStyle = getRandom(8);
             st.clothesStyle = getRandom(6);
             st.hat = getRandom(5);
             st.glasses = getRandom(2);
@@ -698,7 +733,7 @@
             const preview = document.getElementById('avatar-preview');
             const layers = preview.querySelectorAll('.avatar-layer');
             const canvas = document.createElement('canvas');
-            canvas.width = 640;  // Resolución HQ
+            canvas.width = 640;
             canvas.height = 840;
             const ctx = canvas.getContext('2d');
 
